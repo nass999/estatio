@@ -67,36 +67,42 @@ public enum IndexationMethod {
         }
     }
 
+    // Decision tree for fixed base
+    private fixedBaseScenario determineFixedBaseScenario(Indexable term, Indexable previous) {
+        if (changeInBaseValue(term, previous)){ return fixedBaseScenario.CHANGED_BASE_VALUE; }
+        if (allowDecrease && allowDecreaseUnderBase) { return fixedBaseScenario.ALLOW_DECREASE_UNDER_BASE; }
+        if (allowDecrease && !allowDecreaseUnderBase) {return fixedBaseScenario.ALLOW_DECREASE_NOT_UNDER_BASE; }
+        return fixedBaseScenario.NO_DECREASE;
+    }
+
     public void doAlignAfterIndexation(Indexable term, Indexable previous) {
+
         if (fixedBase) {
 
-            final BigDecimal valueAllowingDecrease = MathUtils.firstNonZero(
-                    term.getIndexedValue(),
-                    previous == null ? null : MathUtils.firstNonZero(previous.getEffectiveIndexedValue(), previous.getIndexedValue()),
-                    term.getBaseValue());
+            switch (determineFixedBaseScenario(term, previous)) {
 
-            final BigDecimal valueNotAllowingDecrease = MathUtils.maxUsingFirstSignum(
-                    term.getBaseValue(),
-                    term.getIndexedValue(),
-                    previous == null ? null : MathUtils.firstNonZero(previous.getEffectiveIndexedValue(), previous.getIndexedValue()));
-
-            if (allowDecrease && allowDecreaseUnderBase) {
-                term.setEffectiveIndexedValue(
-                        valueAllowingDecrease);
-
-            } else {
-                if (!allowDecrease) {
+                case CHANGED_BASE_VALUE:
                     term.setEffectiveIndexedValue(
-                            valueNotAllowingDecrease);
-                } else {
-                    // allowDecrease && !allowDecreaseUnderBase
-                    term.setEffectiveIndexedValue(
-                            MathUtils.maxUsingFirstSignum(
-                                    term.getBaseValue(),
-                                    valueAllowingDecrease)
+                            MathUtils.firstNonZero(term.getIndexedValue(),term.getBaseValue())
                     );
-                }
+                    break;
+
+                case ALLOW_DECREASE_UNDER_BASE:
+                    term.setEffectiveIndexedValue(valueAllowingDecrease(term, previous));
+                    break;
+
+                case ALLOW_DECREASE_NOT_UNDER_BASE:
+                    term.setEffectiveIndexedValue(
+                            MathUtils.maxUsingFirstSignum(term.getBaseValue(),valueAllowingDecrease(term, previous))
+                    );
+                    break;
+
+                case NO_DECREASE:
+                    term.setEffectiveIndexedValue(valueNotAllowingDecrease(term, previous));
+                    break;
+
             }
+
         } else {
             term.setEffectiveIndexedValue(
                             MathUtils.maxUsingFirstSignum(
@@ -104,6 +110,36 @@ public enum IndexationMethod {
                                     term.getIndexedValue(),
                                     previous == null ? null : previous.getEffectiveIndexedValue()));
         }
+    }
+
+    private boolean changeInBaseValue(Indexable term, Indexable previous){
+        if (previous != null && !term.getBaseValue().equals(previous.getBaseValue())){
+            return true;
+        }
+        return false;
+    }
+
+    private BigDecimal valueAllowingDecrease(Indexable term, Indexable previous){
+        return MathUtils.firstNonZero(
+                term.getIndexedValue(),
+                previous == null ? null : MathUtils.firstNonZero(previous.getEffectiveIndexedValue(), previous.getIndexedValue()),
+                term.getBaseValue()
+        );
+    }
+
+    private BigDecimal valueNotAllowingDecrease(Indexable term, Indexable previous){
+        return MathUtils.maxUsingFirstSignum(
+                term.getBaseValue(),
+                term.getIndexedValue(),
+                previous == null ? null : MathUtils.firstNonZero(previous.getEffectiveIndexedValue(), previous.getIndexedValue())
+        );
+    }
+
+    private enum fixedBaseScenario {
+        CHANGED_BASE_VALUE,
+        ALLOW_DECREASE_UNDER_BASE,
+        ALLOW_DECREASE_NOT_UNDER_BASE,
+        NO_DECREASE
     }
 
 }

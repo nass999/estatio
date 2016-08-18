@@ -87,6 +87,22 @@ public class IndexationMethodTest {
         }
 
         @Test
+        public void withBaseIndexChanging() throws Exception {
+            //given
+            term1.setIndexationMethod(IndexationMethod.BASE_INDEX_ALLOW_DECREASE);
+            term1.setBaseValue(new BigDecimal("12.34"));
+            term1.setIndexedValue(new BigDecimal("13.45"));
+            term1.setEffectiveIndexedValue(new BigDecimal("12.35"));
+            //when
+            term2.initialize();
+            term2.setBaseValue(new BigDecimal("23.45"));
+            term2.doAlign();
+            //then
+            assertThat(term2.getBaseValue()).isEqualTo(new BigDecimal("23.45"));
+            assertThat(term2.getEffectiveIndexedValue()).isEqualTo(new BigDecimal("23.45"));
+        }
+
+        @Test
         public void testBaseAndEffectiveIndexedValue() throws Exception {
             // indexation method, base value, indexed value, effective indexed value, settled value, expected base value, expected effective indexed value
             // with settled value
