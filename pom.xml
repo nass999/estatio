@@ -568,17 +568,14 @@ mvn clean install -DskipTests -o
 
             <!-- UDO modules -->
             
-            <!-- todo: these will rename to udo-xxx-dom etc in the future -->
-            <!-- todo: still need to add udo-xxx-fixture and udo-xxx-integtests to each -->
-            <!-- todo: eventually, each of these udo modules will be parented by its own udo-xxx parent -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>udo-dom-agreement</artifactId>
+                <artifactId>udo-base</artifactId>
                 <version>1.4.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>udo-dom-agreement</artifactId>
+                <artifactId>udo-base</artifactId>
                 <version>1.4.0-SNAPSHOT</version>
                 <scope>test</scope>
                 <type>test-jar</type>
@@ -586,12 +583,25 @@ mvn clean install -DskipTests -o
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>udo-base</artifactId>
+                <artifactId>udo-dom-link</artifactId>
                 <version>1.4.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>udo-base</artifactId>
+                <artifactId>udo-dom-link</artifactId>
+                <version>1.4.0-SNAPSHOT</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>udo-dom-settings</artifactId>
+                <version>1.4.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>udo-dom-settings</artifactId>
                 <version>1.4.0-SNAPSHOT</version>
                 <scope>test</scope>
                 <type>test-jar</type>
@@ -638,38 +648,12 @@ mvn clean install -DskipTests -o
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>udo-dom-invoice</artifactId>
-                <version>1.4.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>udo-dom-invoice</artifactId>
-                <version>1.4.0-SNAPSHOT</version>
-                <scope>test</scope>
-                <type>test-jar</type>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>udo-dom-numerator</artifactId>
                 <version>1.4.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>udo-dom-numerator</artifactId>
-                <version>1.4.0-SNAPSHOT</version>
-                <scope>test</scope>
-                <type>test-jar</type>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>udo-dom-party</artifactId>
-                <version>1.4.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>udo-dom-party</artifactId>
                 <version>1.4.0-SNAPSHOT</version>
                 <scope>test</scope>
                 <type>test-jar</type>
@@ -688,7 +672,49 @@ mvn clean install -DskipTests -o
                 <type>test-jar</type>
             </dependency>
 
-            
+
+            <dependency>
+                <groupId>org.incode.module.doctemplates</groupId>
+                <artifactId>incode-module-doctemplates-dom</artifactId>
+                <version>1.13.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.incode.module.doctemplates</groupId>
+                <artifactId>incode-module-doctemplates-dom</artifactId>
+                <version>1.13.0-SNAPSHOT</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.isisaddons.module.freemarker</groupId>
+                <artifactId>isis-module-freemarker-dom</artifactId>
+                <version>1.14.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.isisaddons.module.freemarker</groupId>
+                <artifactId>isis-module-freemarker-dom</artifactId>
+                <version>1.14.0-SNAPSHOT</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.isisaddons.module.xdocreport</groupId>
+                <artifactId>isis-module-xdocreport-dom</artifactId>
+                <version>1.14.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.isisaddons.module.xdocreport</groupId>
+                <artifactId>isis-module-xdocreport-dom</artifactId>
+                <version>1.14.0-SNAPSHOT</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+
+
             <!-- EstatioApp modules -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -705,7 +731,26 @@ mvn clean install -DskipTests -o
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>estatio-impmgr</artifactId>
+                <version>1.4.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>estatio-impmgr</artifactId>
+                <version>1.4.0-SNAPSHOT</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>estatio-canonical</artifactId>
+                <version>1.4.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>estatio-canonicalfactory</artifactId>
                 <version>1.4.0-SNAPSHOT</version>
             </dependency>
 
@@ -971,17 +1016,21 @@ mvn clean install -DskipTests -o
                 </property>
             </activation>
             <modules>
-                <module>udo/agreement/dom</module>
                 <module>udo/base/dom</module>
                 <module>udo/charge/dom</module>
                 <module>udo/currency/dom</module>
                 <module>udo/geography/dom</module>
-                <module>udo/invoice/dom</module>
                 <module>udo/numerator/dom</module>
-                <module>udo/party/dom</module>
                 <module>udo/tax/dom</module>
+                <module>udo/link/dom</module>
+                <module>udo/settings/dom</module>
+                <module>incode/doctemplates/dom</module>
+                <module>isisaddons/isis-module-freemarker/dom</module>
+                <module>isisaddons/isis-module-xdocreport/dom</module>
                 <module>estatioapp/app</module>
                 <module>estatioapp/canonical</module>
+                <module>estatioapp/canonicalfactory</module>
+                <module>estatioapp/impmgr</module>
                 <module>estatioapp/dom</module>
                 <module>estatioapp/fixture</module>
                 <module>estatioapp/integtests</module>
@@ -991,17 +1040,21 @@ mvn clean install -DskipTests -o
         <profile>
             <id>quicktest</id>
             <modules>
-                <module>udo/agreement/dom</module>
                 <module>udo/base/dom</module>
                 <module>udo/charge/dom</module>
                 <module>udo/currency/dom</module>
                 <module>udo/geography/dom</module>
-                <module>udo/invoice/dom</module>
                 <module>udo/numerator/dom</module>
-                <module>udo/party/dom</module>
                 <module>udo/tax/dom</module>
+                <module>udo/link/dom</module>
+                <module>udo/settings/dom</module>
+                <module>incode/doctemplates/dom</module>
+                <module>isisaddons/isis-module-freemarker/dom</module>
+                <module>isisaddons/isis-module-xdocreport/dom</module>
                 <module>estatioapp/app</module>
                 <module>estatioapp/canonical</module>
+                <module>estatioapp/canonicalfactory</module>
+                <module>estatioapp/impmgr</module>
                 <module>estatioapp/dom</module>
                 <module>estatioapp/fixture</module>
                 <module>estatioapp/integtests</module>
@@ -1010,17 +1063,21 @@ mvn clean install -DskipTests -o
         <profile>
             <id>extended</id>
             <modules>
-                <module>udo/agreement/dom</module>
                 <module>udo/base/dom</module>
                 <module>udo/charge/dom</module>
                 <module>udo/currency/dom</module>
                 <module>udo/geography/dom</module>
-                <module>udo/invoice/dom</module>
                 <module>udo/numerator/dom</module>
-                <module>udo/party/dom</module>
                 <module>udo/tax/dom</module>
+                <module>udo/link/dom</module>
+                <module>udo/settings/dom</module>
+                <module>incode/doctemplates/dom</module>
+                <module>isisaddons/isis-module-freemarker/dom</module>
+                <module>isisaddons/isis-module-xdocreport/dom</module>
                 <module>estatioapp/app</module>
                 <module>estatioapp/canonical</module>
+                <module>estatioapp/canonicalfactory</module>
+                <module>estatioapp/impmgr</module>
                 <module>estatioapp/dom</module>
                 <module>estatioapp/fixture</module>
                 <module>estatioapp/integtests</module>
@@ -1034,17 +1091,20 @@ mvn clean install -DskipTests -o
                 <maven.test.skip>true</maven.test.skip>
             </properties>
             <modules>
-                <module>udo/agreement/dom</module>
                 <module>udo/base/dom</module>
                 <module>udo/charge/dom</module>
                 <module>udo/currency/dom</module>
                 <module>udo/geography/dom</module>
-                <module>udo/invoice/dom</module>
                 <module>udo/numerator/dom</module>
-                <module>udo/party/dom</module>
-                <module>udo/tax/dom</module>
+                <module>udo/link/dom</module>
+                <module>udo/settings/dom</module>
+                <module>incode/doctemplates/dom</module>
+                <module>isisaddons/isis-module-freemarker/dom</module>
+                <module>isisaddons/isis-module-xdocreport/dom</module>
                 <module>estatioapp/app</module>
+                <module>estatioapp/impmgr</module>
                 <module>estatioapp/dom</module>
+                <module>estatioapp/canonicalfactory</module>
             </modules>
         </profile>
         <!-- so that m2e (within Eclipse) compiles in a different directory than the Maven cmd line -->

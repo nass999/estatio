@@ -25,7 +25,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import org.hamcrest.core.Is;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.joda.time.LocalDate;
@@ -35,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.services.clock.ClockService;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2.Mode;
 
@@ -60,11 +60,10 @@ import org.estatio.dom.bankmandate.Scheme;
 import org.estatio.dom.bankmandate.SequenceType;
 import org.estatio.dom.charge.Charge;
 import org.estatio.dom.financial.bankaccount.BankAccount;
-import org.estatio.dom.financial.bankaccount.BankAccounts;
+import org.estatio.dom.financial.bankaccount.BankAccountRepository;
 import org.estatio.dom.invoice.PaymentMethod;
 import org.estatio.dom.party.Party;
 import org.estatio.dom.party.PartyForTesting;
-import org.estatio.services.clock.ClockService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -168,7 +167,7 @@ public class LeaseTest {
         public void getEffectiveInterval() {
             Assert.assertNull(lease.getEffectiveInterval().endDateExcluding());
             lease.setTenancyEndDate(new LocalDate(2012, 6, 30));
-            Assert.assertThat(lease.getEffectiveInterval().endDateExcluding(), Is.is(new LocalDate(2012, 7, 1)));
+            assertThat(lease.getEffectiveInterval().endDateExcluding()).isEqualTo(new LocalDate(2012, 7, 1));
         }
 
     }
@@ -176,12 +175,12 @@ public class LeaseTest {
     public static class NewItem extends LeaseTest {
 
         @Mock
-        private LeaseItems mockLeaseItems;
+        private LeaseItemRepository mockLeaseItemRepository;
 
         @Before
         public void setUp() throws Exception {
             lease = new Lease();
-            lease.leaseItems = mockLeaseItems;
+            lease.leaseItemRepository = mockLeaseItemRepository;
         }
 
         @Test
@@ -197,7 +196,7 @@ public class LeaseTest {
             // Then
             context.checking(new Expectations() {
                 {
-                    oneOf(mockLeaseItems).newLeaseItem(lease,leaseItemType,charge,invoicingFrequency,paymentMethod,startDate);
+                    oneOf(mockLeaseItemRepository).newLeaseItem(lease,leaseItemType,charge,invoicingFrequency,paymentMethod,startDate);
                 }
             });
 
@@ -215,7 +214,7 @@ public class LeaseTest {
             Lease lease = new Lease();
 
             // when
-            assertThat(lease.getProperty()).isEqualTo(null);
+            assertThat(lease.getProperty()).isNull();
 
             // then
             assertThat(lease.disableNewItem()).isEqualTo("Please set occupancy first");
@@ -233,7 +232,7 @@ public class LeaseTest {
         @Mock
         private AgreementTypeRepository mockAgreementTypeRepository;
         @Mock
-        private BankAccounts mockFinancialAccounts;
+        private BankAccountRepository mockBankAccountRepository;
         @Mock
         private ClockService mockClockService;
         @Mock
@@ -368,7 +367,7 @@ public class LeaseTest {
             lease.agreementRoleTypeRepository = mockAgreementRoleTypeRepository;
             lease.agreementRoleRepository = mockAgreementRoleRepository;
             lease.agreementTypeRepository = mockAgreementTypeRepository;
-            lease.financialAccounts = mockFinancialAccounts;
+            lease.bankAccountRepository = mockBankAccountRepository;
             lease.clockService = mockClockService;
             lease.bankMandateRepository = mockBankMandateRepository;
         }
@@ -415,7 +414,7 @@ public class LeaseTest {
 
             context.checking(new Expectations() {
                 {
-                    oneOf(mockFinancialAccounts).findBankAccountsByOwner(tenant);
+                    oneOf(mockBankAccountRepository).findBankAccountsByOwner(tenant);
                     will(returnValue(Collections.emptyList()));
                 }
             });
@@ -435,7 +434,7 @@ public class LeaseTest {
 
             context.checking(new Expectations() {
                 {
-                    allowing(mockFinancialAccounts).findBankAccountsByOwner(tenant);
+                    allowing(mockBankAccountRepository).findBankAccountsByOwner(tenant);
                     will(returnValue(Lists.newArrayList(bankAccount)));
                 }
             });
@@ -487,7 +486,7 @@ public class LeaseTest {
 
             context.checking(new Expectations() {
                 {
-                    oneOf(mockFinancialAccounts).findBankAccountsByOwner(tenant);
+                    oneOf(mockBankAccountRepository).findBankAccountsByOwner(tenant);
                     will(returnValue(Lists.newArrayList(bankAccount)));
                 }
             });

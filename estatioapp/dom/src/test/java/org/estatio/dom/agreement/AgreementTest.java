@@ -18,22 +18,14 @@
  */
 package org.estatio.dom.agreement;
 
+import java.util.List;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
-import org.estatio.dom.AbstractBeanPropertiesTest;
-import org.estatio.dom.WithIntervalMutable;
-import org.estatio.dom.WithIntervalMutableContractTestAbstract_changeDates;
-import org.estatio.dom.party.Organisation;
-import org.estatio.dom.party.Party;
-import org.estatio.dom.party.PartyForTesting;
-import org.estatio.dom.party.Person;
-import org.estatio.services.clock.ClockService;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.auto.Mock;
@@ -43,16 +35,26 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.List;
+import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.services.clock.ClockService;
+import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+
+import org.estatio.dom.AbstractBeanPropertiesTest;
+import org.estatio.dom.WithIntervalMutable;
+import org.estatio.dom.WithIntervalMutableContractTestAbstract_changeDates;
+import org.estatio.dom.party.Organisation;
+import org.estatio.dom.party.Party;
+import org.estatio.dom.party.PartyForTesting;
+import org.estatio.dom.party.Person;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AgreementTest {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
-
 
     public static class BeanProperties extends AbstractBeanPropertiesTest {
 
@@ -78,10 +80,10 @@ public class AgreementTest {
 
         protected Agreement doCreateWithIntervalMutable(final WithIntervalMutable.Helper<Agreement> mockChangeDates) {
             return new AgreementForTesting() {
-                @Override
-                org.estatio.dom.WithIntervalMutable.Helper<Agreement> getChangeDates() {
+                @Override org.estatio.dom.WithIntervalMutable.Helper<Agreement> getChangeDates() {
                     return mockChangeDates;
                 }
+
                 @Override
                 public Agreement changePrevious(Agreement previousAgreement) {
                     return null;
@@ -89,11 +91,10 @@ public class AgreementTest {
             };
         }
 
-
         @Test
         public void changeDatesDelegate() {
             agreement = new AgreementForTesting();
-            assertThat(agreement.getChangeDates(), is(not(nullValue())));
+            assertThat(agreement.getChangeDates()).isNotNull();
         }
     }
 
@@ -161,27 +162,27 @@ public class AgreementTest {
 
         @Test
         public void whenNone() {
-            assertThat(agreement.findCurrentOrMostRecentParty(landlordArt), is(nullValue()));
+            assertThat(agreement.findCurrentOrMostRecentParty(landlordArt)).isNull();
         }
 
         @Test
         public void whenStillCurrentOnlyOnePartyOfType() {
             addAllRoles();
-            assertThat(agreement.findCurrentOrMostRecentParty(landlordArt), is(landlord));
+            assertThat(agreement.findCurrentOrMostRecentParty(landlordArt)).isEqualTo(landlord);
         }
 
         @Test
         public void whenStillCurrentTwoPartiesOfType() {
             addAllRoles();
-            assertThat(agreement.findCurrentOrMostRecentParty(tenantArt), is(tenant2));
+            assertThat(agreement.findCurrentOrMostRecentParty(tenantArt)).isEqualTo(tenant2);
         }
 
         @Test
         public void whenTerminated() {
             addAllRoles();
             agreement.setEndDate(clockDate.minusDays(2));
-            assertThat(agreement.findCurrentOrMostRecentParty(landlordArt), is(landlord));
-            assertThat(agreement.findCurrentOrMostRecentParty(tenantArt), is(tenant2));
+            assertThat(agreement.findCurrentOrMostRecentParty(landlordArt)).isEqualTo(landlord);
+            assertThat(agreement.findCurrentOrMostRecentParty(tenantArt)).isEqualTo(tenant2);
         }
 
         private void addAllRoles() {
@@ -190,7 +191,6 @@ public class AgreementTest {
             agreement.getRoles().add(arTenant2);
         }
     }
-
 
     public static class FindParty extends AgreementTest {
 
@@ -288,11 +288,10 @@ public class AgreementTest {
             agreement.getRoles().add(debtorAr);
             agreement.getRoles().add(debtorAr2);
 
-            assertThat(agreement.findCurrentOrMostRecentParty("Creditor"), is(creditor));
+            assertThat(agreement.findCurrentOrMostRecentParty("Creditor")).isEqualTo(creditor);
         }
 
     }
-
 
     public static class FindRole extends AgreementTest {
 
@@ -304,7 +303,6 @@ public class AgreementTest {
         private LocalDate date;
 
         private Agreement agreement;
-
 
         @Before
         public void setUp() throws Exception {
@@ -326,7 +324,7 @@ public class AgreementTest {
                     will(returnValue(agreementRole));
                 }
             });
-            assertThat(agreement.findRole(party, art, date), is(agreementRole));
+            assertThat(agreement.findRole(party, art, date)).isEqualTo(agreementRole);
         }
 
     }
@@ -349,24 +347,23 @@ public class AgreementTest {
             agreement.setStartDate(new LocalDate(2013, 4, 1));
             agreement.setEndDate(new LocalDate(2013, 6, 30));
 
-
             // before
             expectClockNowToReturn(new LocalDate(2013, 3, 31));
-            assertThat(agreement.isCurrent(), is(false));
+            assertThat(agreement.isCurrent()).isFalse();
 
             // within
             expectClockNowToReturn(new LocalDate(2013, 4, 1));
-            assertThat(agreement.isCurrent(), is(true));
+            assertThat(agreement.isCurrent()).isTrue();
 
             expectClockNowToReturn(new LocalDate(2013, 5, 15));
-            assertThat(agreement.isCurrent(), is(true));
+            assertThat(agreement.isCurrent()).isTrue();
 
             expectClockNowToReturn(new LocalDate(2013, 6, 30));
-            assertThat(agreement.isCurrent(), is(true));
+            assertThat(agreement.isCurrent()).isTrue();
 
             // after
             expectClockNowToReturn(new LocalDate(2013, 7, 1));
-            assertThat(agreement.isCurrent(), is(false));
+            assertThat(agreement.isCurrent()).isFalse();
         }
 
         @Ignore // TO REVIEW
@@ -377,23 +374,22 @@ public class AgreementTest {
 
             // before
             expectClockNowToReturn(new LocalDate(2013, 3, 31));
-            assertThat(agreement.isCurrent(), is(false));
+            assertThat(agreement.isCurrent()).isFalse();
 
             // within
             expectClockNowToReturn(new LocalDate(2013, 4, 1));
-            assertThat(agreement.isCurrent(), is(true));
+            assertThat(agreement.isCurrent()).isTrue();
 
             expectClockNowToReturn(new LocalDate(2013, 5, 15));
-            assertThat(agreement.isCurrent(), is(true));
+            assertThat(agreement.isCurrent()).isTrue();
 
             expectClockNowToReturn(new LocalDate(2013, 5, 20));
-            assertThat(agreement.isCurrent(), is(true));
+            assertThat(agreement.isCurrent()).isTrue();
 
             // after
             expectClockNowToReturn(new LocalDate(2013, 5, 21));
-            assertThat(agreement.isCurrent(), is(false));
+            assertThat(agreement.isCurrent()).isFalse();
         }
-
 
         private void expectClockNowToReturn(final LocalDate result) {
             context.checking(new Expectations() {
@@ -405,7 +401,6 @@ public class AgreementTest {
         }
 
     }
-
 
     public static class NewRole extends AgreementTest {
 
@@ -421,7 +416,6 @@ public class AgreementTest {
 
             private LocalDate startDate;
             private LocalDate endDate;
-
 
             @Before
             public void setUp() throws Exception {
@@ -471,7 +465,7 @@ public class AgreementTest {
                 });
 
                 Agreement x = agreement.newRole(art, party, startDate, endDate);
-                assertThat(x, is(agreement));
+                assertThat(x).isEqualTo(agreement);
             }
 
         }
@@ -504,32 +498,33 @@ public class AgreementTest {
                     }
                 });
 
-                assertThat(agreement.choices0NewRole(), is(list));;
+                assertThat(agreement.choices0NewRole()).isEqualTo(list);
             }
         }
 
-        public static class Defaults extends NewRole  {
+        public static class Defaults extends NewRole {
 
             private Agreement agreement;
 
             private LocalDate effectiveStartDate;
             private LocalDate effectiveEndDate;
 
-
             @Before
             public void setUp() throws Exception {
-                effectiveStartDate = new LocalDate(2013,4,1);
-                effectiveEndDate = new LocalDate(2023,3,30);
+                effectiveStartDate = new LocalDate(2013, 4, 1);
+                effectiveEndDate = new LocalDate(2023, 3, 30);
 
                 agreement = new AgreementForTesting() {
                     @Override
                     public LocalDate getStartDate() {
                         return effectiveStartDate;
                     }
+
                     @Override
                     public LocalDate getEndDate() {
                         return effectiveEndDate;
                     }
+
                     @Override
                     public Agreement changePrevious(Agreement previousAgreement) {
                         return null;
@@ -539,12 +534,12 @@ public class AgreementTest {
 
             @Test
             public void defaultStart() {
-                assertThat(agreement.default2NewRole(), is(effectiveStartDate));
+                assertThat(agreement.default2NewRole()).isEqualTo(effectiveStartDate);
             }
 
             @Test
             public void defaultEnd() {
-                assertThat(agreement.default3NewRole(), is(effectiveEndDate));
+                assertThat(agreement.default3NewRole()).isEqualTo(effectiveEndDate);
             }
 
         }
@@ -566,7 +561,6 @@ public class AgreementTest {
             private LocalDate startDate;
             private LocalDate endDate;
 
-
             @Before
             public void setUp() throws Exception {
                 art = new AgreementRoleType();
@@ -574,50 +568,38 @@ public class AgreementTest {
 
                 party = new PartyForTesting();
 
-                startDate = new LocalDate(2013,4,1);
-                endDate = new LocalDate(2023,3,30);
+                startDate = new LocalDate(2013, 4, 1);
+                endDate = new LocalDate(2023, 3, 30);
 
                 agreement = new AgreementForTesting();
                 agreement.setContainer(mockContainer);
             }
 
-
-
             @Test
             public void validateNewRole_valid_nullStart_noExistingRoles() {
-                assertThat(
-                        agreement.validateNewRole(art, party, null, endDate),
-                        is(nullValue()));
+                assertThat(agreement.validateNewRole(art, party, null, endDate)).isNull();
             }
 
             @Test
             public void validateNewRole_valid_nullEnd_noExistingRoles() {
-                assertThat(
-                        agreement.validateNewRole(art, party, startDate, null),
-                        is(nullValue()));
+                assertThat(agreement.validateNewRole(art, party, startDate, null)).isNull();
             }
 
             @Test
             public void validateNewRole_valid_startBeforeEnd_noExistingRoles() {
-                assertThat(
-                        agreement.validateNewRole(art, party, startDate, endDate),
-                        is(nullValue()));
+                assertThat(agreement.validateNewRole(art, party, startDate, endDate)).isNull();
             }
 
             @Test
             public void validateNewRole_valid_startSameAsEnd_noExistingRoles() {
                 startDate = endDate;
-                assertThat(
-                        agreement.validateNewRole(art, party, startDate, endDate),
-                        is(nullValue()));
+                assertThat(agreement.validateNewRole(art, party, startDate, endDate)).isNull();
             }
 
             @Test
             public void validateNewRole_invalid_startAfterEnd_noExistingRoles() {
                 startDate = endDate.plusDays(1);
-                assertThat(
-                        agreement.validateNewRole(art, party, startDate, endDate),
-                        is("End date cannot be earlier than start date"));
+                assertThat(agreement.validateNewRole(art, party, startDate, endDate)).isEqualTo("End date cannot be earlier than start date");
             }
 
             @Test
@@ -625,11 +607,8 @@ public class AgreementTest {
                 final AgreementRole existingRole = new AgreementRole();
                 existingRole.setType(artOther);
                 agreement.getRoles().add(existingRole);
-                assertThat(
-                        agreement.validateNewRole(art, party, null, null),
-                        is(nullValue()));
+                assertThat(agreement.validateNewRole(art, party, null, null)).isNull();
             }
-
 
             @Test
             public void validateNewRole_invalid_nullStartAnd_existingRolesDoesContainType() {
@@ -638,14 +617,12 @@ public class AgreementTest {
 
                 context.checking(new Expectations() {{
                     allowing(mockClockService).now();
-                    will(returnValue(new LocalDate(2013,4,2)));
+                    will(returnValue(new LocalDate(2013, 4, 2)));
                 }});
 
                 existingRole.setType(art);
                 agreement.getRoles().add(existingRole);
-                assertThat(
-                        agreement.validateNewRole(art, party, null, null),
-                        is("There is already a role for this type and period"));
+                assertThat(agreement.validateNewRole(art, party, null, null)).isEqualTo("There is already a role for this type and period");
             }
 
         }

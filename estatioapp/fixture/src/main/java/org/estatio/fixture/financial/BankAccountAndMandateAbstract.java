@@ -33,11 +33,11 @@ import org.estatio.dom.bankmandate.BankMandateMenu;
 import org.estatio.dom.bankmandate.BankMandateRepository;
 import org.estatio.dom.bankmandate.Scheme;
 import org.estatio.dom.bankmandate.SequenceType;
-import org.estatio.dom.financial.FinancialAccounts;
+import org.estatio.dom.financial.FinancialAccountRepository;
 import org.estatio.dom.financial.bankaccount.BankAccount;
 import org.estatio.dom.lease.Lease;
 import org.estatio.dom.lease.LeaseConstants;
-import org.estatio.dom.party.Parties;
+import org.estatio.dom.party.PartyRepository;
 import org.estatio.dom.party.Party;
 import org.estatio.fixture.EstatioFixtureScript;
 
@@ -50,14 +50,10 @@ public abstract class BankAccountAndMandateAbstract extends EstatioFixtureScript
     }
 
     protected void createBankMandate(String ownerRef, String bankAccountRef, Integer sequence, SequenceType sequenceType, Scheme scheme, ExecutionContext executionContext) {
-
-        final Party owner = parties.findPartyByReference(ownerRef);
-        final BankAccount bankAccount = (BankAccount) financialAccounts.findByOwnerAndReference(owner, bankAccountRef);
-
+        final Party owner = partyRepository.findPartyByReference(ownerRef);
+        final BankAccount bankAccount = (BankAccount) financialAccountRepository.findByOwnerAndReference(owner, bankAccountRef);
         final AgreementRoleType agreementRoleType = agreementRoleTypeRepository.findByTitle(LeaseConstants.ART_TENANT);
-
         final String partyRef = owner.getReference();
-
         final List<AgreementRole> roles = agreementRoles.findByPartyAndTypeAndContainsDate(owner, agreementRoleType, ld(2013, 10, 1));
         final Lease lease = (Lease) roles.get(0).getAgreement();
 
@@ -75,14 +71,13 @@ public abstract class BankAccountAndMandateAbstract extends EstatioFixtureScript
         executionContext.addResult(this, bankMandate.getReference(), bankMandate);
     }
 
-
     // //////////////////////////////////////
 
     @Inject
-    FinancialAccounts financialAccounts;
+    FinancialAccountRepository financialAccountRepository;
 
     @Inject
-    private Parties parties;
+    private PartyRepository partyRepository;
 
     @Inject
     private BankMandateMenu bankMandateMenu;

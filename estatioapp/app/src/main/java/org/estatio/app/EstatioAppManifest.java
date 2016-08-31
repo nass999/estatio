@@ -11,9 +11,9 @@ import com.google.common.collect.Maps;
 import org.apache.isis.applib.AppManifest;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 
-import org.isisaddons.module.excel.dom.ExcelService;
 import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.stringinterpolator.dom.StringInterpolatorService;
+
+import org.incode.module.doctemplates.dom.DocTemplatesModule;
 
 import org.estatio.canonical.EstatioCanonicalModule;
 import org.estatio.dom.EstatioDomainModule;
@@ -21,7 +21,7 @@ import org.estatio.domlink.EstatioDomainLinkModule;
 import org.estatio.domsettings.EstatioDomainSettingsModule;
 import org.estatio.fixture.EstatioFixtureModule;
 import org.estatio.fixturescripts.EstatioFixtureScriptsModule;
-import org.estatio.services.clock.ClockService;
+import org.estatio.services.calendar.CalendarService;
 
 public class EstatioAppManifest implements AppManifest {
 
@@ -42,6 +42,9 @@ public class EstatioAppManifest implements AppManifest {
                         EstatioDomainModule.class,
                         EstatioDomainLinkModule.class,
                         EstatioDomainSettingsModule.class,
+
+                        org.incode.module.doctemplates.dom.DocTemplatesModule.class,
+
                         // TODO: sort out packages for the 'fixture' module
                         EstatioFixtureModule.class,
                         EstatioFixtureScriptsModule.class,
@@ -61,7 +64,8 @@ public class EstatioAppManifest implements AppManifest {
                         org.isisaddons.module.sessionlogger.SessionLoggerModule.class,
                         // don't include the settings module, instead we use EstatioDomainSettingsModule
                         // org.isisaddons.module.settings.SettingsModule.class,
-                        org.isisaddons.module.stringinterpolator.StringInterpolatorModule.class
+                        org.isisaddons.module.stringinterpolator.StringInterpolatorModule.class,
+                        org.isisaddons.module.freemarker.dom.FreeMarkerModule.class
                 )
         );
         return modules;
@@ -86,17 +90,16 @@ public class EstatioAppManifest implements AppManifest {
     @Override
     public List<Class<?>> getAdditionalServices() {
         List<Class<?>> additionalServices = Lists.newArrayList();
-        appendEstatioClockService(additionalServices);
+        appendEstatioCalendarService(additionalServices);
         appendOptionalServicesForSecurityModule(additionalServices);
-        appendServicesForAddonsWithServicesThatAreCurrentlyMissingModules(additionalServices);
         return additionalServices;
     }
 
-    protected void appendEstatioClockService(final List<Class<?>> additionalServices) {
+    protected void appendEstatioCalendarService(final List<Class<?>> additionalServices) {
         // TODO: need to create a module for this (the Estatio ClockService... else maybe use Isis')
         additionalServices.addAll(
                 Arrays.asList(
-                        ClockService.class
+                        CalendarService.class
                 )
         );
     }
@@ -106,16 +109,6 @@ public class EstatioAppManifest implements AppManifest {
                 Arrays.asList(
                         org.isisaddons.module.security.dom.password.PasswordEncryptionServiceUsingJBcrypt.class,
                         org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto.class
-                )
-        );
-    }
-
-    protected void appendServicesForAddonsWithServicesThatAreCurrentlyMissingModules(final List<Class<?>> additionalServices) {
-        // TODO: missing a module to reference
-        additionalServices.addAll(
-                Arrays.asList(
-                        ExcelService.class,
-                        StringInterpolatorService.class
                 )
         );
     }

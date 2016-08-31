@@ -37,7 +37,8 @@ import org.isisaddons.module.settings.dom.ApplicationSetting;
 
 import org.estatio.dom.UdoDomainService;
 import org.estatio.domsettings.ApplicationSettingForEstatio;
-import org.estatio.domsettings.EstatioSettingsService;
+import org.estatio.domsettings.ApplicationSettingsServiceForEstatio;
+import org.estatio.dom.appsettings.EstatioSettingsService;
 
 @DomainService()
 @DomainServiceLayout(
@@ -50,6 +51,7 @@ public class EstatioAdministrationService extends UdoDomainService<EstatioAdmini
         super(EstatioAdministrationService.class);
     }
 
+    //region > updateEpochDate (action)
     @Action(
             semantics = SemanticsOf.IDEMPOTENT
     )
@@ -64,8 +66,9 @@ public class EstatioAdministrationService extends UdoDomainService<EstatioAdmini
     public LocalDate default0UpdateEpochDate() {
         return settingsService.fetchEpochDate();
     }
+    //endregion
 
-    // //////////////////////////////////////
+    //region > listAllSettings (action)
 
     @Action(
             semantics = SemanticsOf.SAFE,
@@ -73,12 +76,18 @@ public class EstatioAdministrationService extends UdoDomainService<EstatioAdmini
     )
     @MemberOrder(sequence = "2")
     public List<ApplicationSetting> listAllSettings() {
-        return settingsService.listAll();
+        return applicationSettingsService.listAll();
     }
+    //endregion
 
-    // //////////////////////////////////////
+    //region > injected dependencies
 
     @Inject
     private EstatioSettingsService settingsService;
 
-}
+    @Inject
+    ApplicationSettingsServiceForEstatio applicationSettingsService;
+
+    //endregion
+
+        }

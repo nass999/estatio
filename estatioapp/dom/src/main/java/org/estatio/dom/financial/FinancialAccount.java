@@ -41,7 +41,7 @@ import org.apache.isis.applib.annotation.Where;
 
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 
-import org.estatio.dom.EstatioDomainObject;
+import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.JdoColumnLength;
 import org.estatio.dom.RegexValidation;
 import org.estatio.dom.WithNameGetter;
@@ -91,7 +91,7 @@ import lombok.Setter;
 })
 @DomainObject(editing = Editing.DISABLED)
 public class FinancialAccount
-        extends EstatioDomainObject<FinancialAccount>
+        extends UdoDomainObject2<FinancialAccount>
         implements WithNameGetter, WithReferenceGetter, WithApplicationTenancyCountry {
 //        implements WithNameGetter, WithReferenceUnique,     WithApplicationTenancyCountry {
 
@@ -158,7 +158,7 @@ public class FinancialAccount
 
     @Programmatic
     public BigDecimal getBalance() {
-        return financialAccountTransactions.balance(this);
+        return financialAccountTransactionRepository.balance(this);
     }
 
     // //////////////////////////////////////
@@ -168,7 +168,7 @@ public class FinancialAccount
             final LocalDate transactionDate,
             final String description,
             final BigDecimal amount) {
-        financialAccountTransactions.newTransaction(this, transactionDate, description, amount);
+        financialAccountTransactionRepository.newTransaction(this, transactionDate, description, amount);
     }
 
     // //////////////////////////////////////
@@ -184,5 +184,5 @@ public class FinancialAccount
     }
 
     @Inject
-    private FinancialAccountTransactions financialAccountTransactions;
+    private FinancialAccountTransactionRepository financialAccountTransactionRepository;
 }

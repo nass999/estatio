@@ -19,7 +19,7 @@
 package org.estatio.dom.agreement;
 
 import java.util.List;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.joda.time.LocalDate;
@@ -27,17 +27,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import org.apache.isis.applib.services.clock.ClockService;
 import org.apache.isis.core.unittestsupport.comparable.ComparableContractTest_compareTo;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
+
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+
 import org.estatio.dom.AbstractBeanPropertiesTest;
 import org.estatio.dom.party.Party;
 import org.estatio.dom.party.PartyForTesting;
-import org.estatio.services.clock.ClockService;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class AgreementRoleTest  {
+public class AgreementRoleTest {
 
     public static class BeanProperties extends AbstractBeanPropertiesTest {
 
@@ -93,23 +95,23 @@ public class AgreementRoleTest  {
                             newAgreementRole(agreement1, null, null, null),
                             newAgreementRole(agreement2, null, null, null)
                     )
-                    ,listOf(
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), null, null),
-                            newAgreementRole(agreement1, new LocalDate(2013,3,1), null, null),
-                            newAgreementRole(agreement1, new LocalDate(2013,3,1), null, null),
+                    , listOf(
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), null, null),
+                            newAgreementRole(agreement1, new LocalDate(2013, 3, 1), null, null),
+                            newAgreementRole(agreement1, new LocalDate(2013, 3, 1), null, null),
                             newAgreementRole(agreement1, null, null, null)
                     )
-                    ,listOf(
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), null, null),
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), type1, null),
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), type1, null),
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), type2, null)
+                    , listOf(
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), null, null),
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), type1, null),
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), type1, null),
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), type2, null)
                     )
-                    ,listOf(
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), type1, null),
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), type1, party1),
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), type1, party1),
-                            newAgreementRole(agreement1, new LocalDate(2013,4,1), type1, party2)
+                    , listOf(
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), type1, null),
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), type1, party1),
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), type1, party1),
+                            newAgreementRole(agreement1, new LocalDate(2013, 4, 1), type1, party2)
                     )
             );
         }
@@ -184,7 +186,7 @@ public class AgreementRoleTest  {
         private void assertIsCurrent(final LocalDate start, final LocalDate end, final boolean expect) {
             agreementRole.setStartDate(start);
             agreementRole.setEndDate(end);
-            assertThat(agreementRole.isCurrent(), is(expect));
+            assertThat(agreementRole.isCurrent()).isEqualTo(expect);
         }
 
     }

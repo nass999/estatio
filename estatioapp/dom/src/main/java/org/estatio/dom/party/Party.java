@@ -38,7 +38,7 @@ import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.Where;
 
 import org.estatio.app.security.EstatioRole;
-import org.estatio.dom.EstatioDomainObject;
+import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.JdoColumnLength;
 import org.estatio.dom.RegexValidation;
 import org.estatio.dom.WithNameComparable;
@@ -83,10 +83,10 @@ import lombok.Setter;
                 value = "SELECT "
                         + "FROM org.estatio.dom.party.Party "
                         + "WHERE reference == :reference") })
-@DomainObject(editing = Editing.DISABLED, autoCompleteAction = "autoComplete", autoCompleteRepository = Parties.class)
+@DomainObject(editing = Editing.DISABLED, autoCompleteAction = "autoComplete", autoCompleteRepository = PartyRepository.class)
 @DomainObjectLayout(bookmarking = BookmarkPolicy.AS_ROOT)
 public abstract class Party
-        extends EstatioDomainObject<Party>
+        extends UdoDomainObject2<Party>
         implements WithNameComparable<Party>, WithReferenceUnique, CommunicationChannelOwner, AgreementRoleHolder {
 
     public Party() {

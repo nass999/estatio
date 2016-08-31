@@ -21,8 +21,7 @@ package org.estatio.dom.financial.utils;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IBANValidatorTest {
 
@@ -34,18 +33,18 @@ public class IBANValidatorTest {
 
         @Test
         public void happyCase() {
-            assertThat(IBANValidator.valid("NL26INGB0680433600"), is(true));
-            assertThat(IBANValidator.valid("NL07INGB0697694704"), is(true));
-            assertThat(IBANValidator.valid("IT69N0347501601000051986922"), is(true));
-            assertThat(IBANValidator.valid("NL68RABO0145568962"), is(true));
-            assertThat(IBANValidator.valid("IT93Q0347501601000051768165"), is(true));
+            assertThat(IBANValidator.valid("NL26INGB0680433600")).isTrue();
+            assertThat(IBANValidator.valid("NL07INGB0697694704")).isTrue();
+            assertThat(IBANValidator.valid("IT69N0347501601000051986922")).isTrue();
+            assertThat(IBANValidator.valid("NL68RABO0145568962")).isTrue();
+            assertThat(IBANValidator.valid("IT93Q0347501601000051768165")).isTrue();
         }
 
         @Test
         public void sadCase() {
-            assertThat(IBANValidator.valid("NLXXINGB0680433600"), is(false));
-            assertThat(IBANValidator.valid(""), is(false));
-            assertThat(IBANValidator.valid("rubbish"), is(false));
+            assertThat(IBANValidator.valid("NLXXINGB0680433600")).isFalse();
+            assertThat(IBANValidator.valid("")).isFalse();
+            assertThat(IBANValidator.valid("rubbish")).isFalse();
         }
 
     }
@@ -54,7 +53,7 @@ public class IBANValidatorTest {
 
         @Test
         public void happyCase() {
-            assertThat(IBANValidator.checksum("IT93Q0347501601000051768165"), is(1));
+            assertThat(IBANValidator.checksum("IT93Q0347501601000051768165")).isEqualTo(1);
         }
 
     }
@@ -63,7 +62,7 @@ public class IBANValidatorTest {
 
         @Test
         public void happyCase() {
-            assertThat(IBANValidator.fixChecksum("IT00Q0347501601000051768165"), is("IT93Q0347501601000051768165"));
+            assertThat(IBANValidator.fixChecksum("IT00Q0347501601000051768165")).isEqualTo("IT93Q0347501601000051768165");
         }
 
     }

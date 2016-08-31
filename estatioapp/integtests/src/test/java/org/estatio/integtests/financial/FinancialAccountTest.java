@@ -37,9 +37,9 @@ import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.estatio.dom.asset.financial.FixedAssetFinancialAccount;
 import org.estatio.dom.asset.financial.FixedAssetFinancialAccountRepository;
 import org.estatio.dom.financial.FinancialAccount;
-import org.estatio.dom.financial.FinancialAccounts;
+import org.estatio.dom.financial.FinancialAccountRepository;
 import org.estatio.dom.financial.bankaccount.BankAccount;
-import org.estatio.dom.party.Parties;
+import org.estatio.dom.party.PartyRepository;
 import org.estatio.dom.party.Party;
 import org.estatio.fixture.EstatioBaseLineFixture;
 import org.estatio.fixture.asset.PropertyForKalNl;
@@ -67,15 +67,15 @@ public class FinancialAccountTest extends EstatioIntegrationTest {
         }
 
         @Inject
-        private Parties parties;
+        private PartyRepository partyRepository;
         @Inject
-        private FinancialAccounts financialAccounts;
+        private FinancialAccountRepository financialAccountRepository;
 
         private Party party;
 
         @Before
         public void setUp() throws Exception {
-            party = parties.findPartyByReference(OrganisationForHelloWorldGb.REF);
+            party = partyRepository.findPartyByReference(OrganisationForHelloWorldGb.REF);
         }
 
         // this test really just makes an assertion about the fixture.
@@ -83,7 +83,7 @@ public class FinancialAccountTest extends EstatioIntegrationTest {
         public void atLeastOneAccountIsOwnedByParty() throws Exception {
 
             // given
-            List<FinancialAccount> allAccounts = financialAccounts.allAccounts();
+            List<FinancialAccount> allAccounts = financialAccountRepository.allAccounts();
 
             // when
             List<FinancialAccount> partyAccounts = Lists.newArrayList(Iterables.filter(allAccounts, new Predicate<FinancialAccount>() {
@@ -112,13 +112,13 @@ public class FinancialAccountTest extends EstatioIntegrationTest {
         }
 
         @Inject
-        private FinancialAccounts financialAccounts;
+        private FinancialAccountRepository financialAccountRepository;
 
         @Inject
         private FixedAssetFinancialAccountRepository fixedAssetFinancialAccountRepository;
 
         @Inject
-        private Parties partyRepository;
+        private PartyRepository partyRepository;
 
         private BankAccount bankAccount;
 
@@ -129,7 +129,8 @@ public class FinancialAccountTest extends EstatioIntegrationTest {
         @Before
         public void setUp() throws Exception {
             owner = partyRepository.findPartyByReference(OrganisationForHelloWorldNl.REF);
-            FinancialAccount financialAccount = financialAccounts.findByOwnerAndReference(owner, BankAccountForHelloWorldNl.REF);
+            FinancialAccount financialAccount = financialAccountRepository.findByOwnerAndReference(owner, BankAccountForHelloWorldNl.REF);
+
             Assert.assertTrue(financialAccount instanceof BankAccount);
             bankAccount = (BankAccount) financialAccount;
         }
@@ -153,7 +154,8 @@ public class FinancialAccountTest extends EstatioIntegrationTest {
 
             // Then
             Assert.assertThat(fixedAssetFinancialAccountRepository.findByFinancialAccount(bankAccount).size(), is(0));
-            Assert.assertNull(financialAccounts.findByOwnerAndReference(owner, BankAccountForHelloWorldNl.REF));
+            Assert.assertNull(financialAccountRepository.findByOwnerAndReference(owner, BankAccountForHelloWorldNl.REF));
+
         }
     }
 }

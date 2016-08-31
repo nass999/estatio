@@ -19,18 +19,19 @@
 package org.estatio.dom.asset;
 
 import java.util.List;
+
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.apache.isis.applib.query.Query;
-import org.apache.isis.core.commons.matchers.IsisMatchers;
+
 import org.estatio.dom.FinderInteraction;
 import org.estatio.dom.FinderInteraction.FinderMethod;
 import org.estatio.dom.party.Party;
 import org.estatio.dom.party.PartyForTesting;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FixedAssetRoleRepositoryTest {
 
@@ -84,13 +85,13 @@ public class FixedAssetRoleRepositoryTest {
             // TODO: need also to search by dates
             fixedAssetRoleRepository.findRole(asset, party, type, startDate, endDate);
 
-            assertThat(finderInteraction.getFinderMethod(), is(FinderMethod.FIRST_MATCH));
-            assertThat(finderInteraction.getResultType(), IsisMatchers.classEqualTo(FixedAssetRole.class));
-            assertThat(finderInteraction.getQueryName(), is("findByAssetAndPartyAndType"));
-            assertThat(finderInteraction.getArgumentsByParameterName().get("asset"), is((Object) asset));
-            assertThat(finderInteraction.getArgumentsByParameterName().get("party"), is((Object) party));
-            assertThat(finderInteraction.getArgumentsByParameterName().get("type"), is((Object) type));
-            assertThat(finderInteraction.getArgumentsByParameterName().size(), is(3));
+            assertThat(finderInteraction.getFinderMethod()).isEqualTo(FinderMethod.FIRST_MATCH);
+            assertThat(finderInteraction.getResultType()).isEqualTo(FixedAssetRole.class);
+            assertThat(finderInteraction.getQueryName()).isEqualTo("findByAssetAndPartyAndType");
+            assertThat(finderInteraction.getArgumentsByParameterName().get("asset")).isEqualTo((Object) asset);
+            assertThat(finderInteraction.getArgumentsByParameterName().get("party")).isEqualTo((Object) party);
+            assertThat(finderInteraction.getArgumentsByParameterName().get("type")).isEqualTo((Object) type);
+            assertThat(finderInteraction.getArgumentsByParameterName()).hasSize(3);
         }
 
     }

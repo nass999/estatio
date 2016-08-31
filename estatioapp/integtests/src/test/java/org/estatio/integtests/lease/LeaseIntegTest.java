@@ -25,9 +25,12 @@ import javax.inject.Inject;
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.apache.isis.applib.services.wrapper.DisabledException;
 import org.apache.isis.applib.services.wrapper.InvalidException;
 import org.apache.isis.applib.services.wrapper.WrapperFactory;
 
@@ -43,7 +46,7 @@ import org.estatio.dom.lease.LeaseItemType;
 import org.estatio.dom.lease.LeaseMenu;
 import org.estatio.dom.lease.LeaseRepository;
 import org.estatio.dom.lease.LeaseTerm;
-import org.estatio.dom.party.Parties;
+import org.estatio.dom.party.PartyRepository;
 import org.estatio.dom.party.Party;
 import org.estatio.fixture.EstatioBaseLineFixture;
 import org.estatio.fixture.charge.ChargeRefData;
@@ -70,7 +73,7 @@ public class LeaseIntegTest extends EstatioIntegrationTest {
     LeaseRepository leaseRepository;
 
     @Inject
-    Parties parties;
+    PartyRepository partyRepository;
 
     public static class Assign extends LeaseIntegTest {
 
@@ -90,7 +93,7 @@ public class LeaseIntegTest extends EstatioIntegrationTest {
             // given
             final String newReference = "OXF-MEDIA-001";
             final Lease lease = leaseRepository.findLeaseByReference(LeaseForOxfTopModel001Gb.REF);
-            final Party newParty = parties.findPartyByReference(OrganisationForMediaXGb.REF);
+            final Party newParty = partyRepository.findPartyByReference(OrganisationForMediaXGb.REF);
             final LocalDate newStartDate = VT.ld(2014, 1, 1);
 
             // when
@@ -406,6 +409,10 @@ public class LeaseIntegTest extends EstatioIntegrationTest {
 
     public static class ChangeDates extends LeaseIntegTest {
 
+        @Rule
+        public ExpectedException expectedException = ExpectedException.none();
+
+
         @Before
         public void setupData() {
             runFixtureScript(new FixtureScript() {
@@ -431,6 +438,12 @@ public class LeaseIntegTest extends EstatioIntegrationTest {
         @Test
         public void onDateChange() throws Exception {
 
+            //then
+            expectedException.expect(DisabledException.class);
+            expectedException.expectMessage("You need administrator rights to change the dates");
+
+            // when
+            wrap(leaseTopModel).changeDates(null, null);
         }
     }
 

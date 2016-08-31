@@ -48,12 +48,12 @@ import org.apache.isis.applib.annotation.Where;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.wicket.fullcalendar2.cpt.applib.CalendarEventable;
 
-import org.estatio.dom.EstatioDomainObject;
+import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.JdoColumnLength;
 import org.estatio.dom.apptenancy.WithApplicationTenancyProperty;
 import org.estatio.dom.event.Event;
 import org.estatio.dom.event.EventSource;
-import org.estatio.dom.event.Events;
+import org.estatio.dom.event.EventRepository;
 import org.estatio.dom.lease.Lease;
 import org.estatio.dom.utils.JodaPeriodUtils;
 import org.estatio.dom.utils.TitleBuilder;
@@ -93,7 +93,7 @@ import lombok.Setter;
                         + "&& exerciseType == :exerciseType ") })
 @DomainObject(editing = Editing.DISABLED)
 public abstract class BreakOption
-        extends EstatioDomainObject<BreakOption>
+        extends UdoDomainObject2<BreakOption>
         implements EventSource, WithApplicationTenancyProperty {
 
     public BreakOption() {
@@ -218,7 +218,7 @@ public abstract class BreakOption
     private void removeExistingEvents() {
         // remove existing events
         for (final Event event : findEvents()) {
-            events.remove(event);
+            eventRepository.remove(event);
         }
     }
 
@@ -260,7 +260,7 @@ public abstract class BreakOption
     @Action(semantics = SemanticsOf.NON_IDEMPOTENT_ARE_YOU_SURE)
     public void remove(final String reason) {
         for (Event event : findEvents()) {
-            events.remove(event);
+            eventRepository.remove(event);
         }
 
         getContainer().remove(this);
@@ -300,7 +300,7 @@ public abstract class BreakOption
     }
 
     private List<Event> findEvents() {
-        return events.findBySource(this);
+        return eventRepository.findBySource(this);
     }
 
     // //////////////////////////////////////
@@ -310,7 +310,7 @@ public abstract class BreakOption
      * methods.
      */
     protected Event createEvent(final LocalDate date, final EventSource subject, final String subjectEventType) {
-        return events.newEvent(date, subject, subjectEventType);
+        return eventRepository.newEvent(date, subject, subjectEventType);
     }
 
     // //////////////////////////////////////
@@ -357,5 +357,5 @@ public abstract class BreakOption
     // //////////////////////////////////////
 
     @Inject
-    protected Events events;
+    protected EventRepository eventRepository;
 }

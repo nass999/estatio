@@ -18,30 +18,28 @@
  */
 package org.estatio.dom.agreement;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.isis.applib.query.Query;
-import org.apache.isis.core.commons.matchers.IsisMatchers;
 
 import org.estatio.dom.FinderInteraction;
 import org.estatio.dom.FinderInteraction.FinderMethod;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AgreementTypeRepositoryTest {
 
     FinderInteraction finderInteraction;
 
-    AgreementTypeRepository agreements;
+    AgreementTypeRepository agreementTypeRepository;
 
     @Before
     public void setup() {
 
-        agreements = new AgreementTypeRepository() {
+        agreementTypeRepository = new AgreementTypeRepository() {
 
             @Override
             protected <T> T firstMatch(Query<T> query) {
@@ -68,14 +66,14 @@ public class AgreementTypeRepositoryTest {
         @Test
         public void happyCase() {
 
-            agreements.find("Some.exact*title");
+            agreementTypeRepository.find("Some.exact*title");
 
             // then
-            assertThat(finderInteraction.getFinderMethod(), is(FinderMethod.FIRST_MATCH));
-            assertThat(finderInteraction.getResultType(), IsisMatchers.classEqualTo(AgreementType.class));
-            assertThat(finderInteraction.getQueryName(), is("findByTitle"));
-            assertThat(finderInteraction.getArgumentsByParameterName().get("title"), is((Object) "Some.exact*title"));
-            assertThat(finderInteraction.getArgumentsByParameterName().size(), is(1));
+            assertThat(finderInteraction.getFinderMethod()).isEqualTo(FinderMethod.FIRST_MATCH);
+            assertThat(finderInteraction.getResultType()).isEqualTo(AgreementType.class);
+            assertThat(finderInteraction.getQueryName()).isEqualTo("findByTitle");
+            assertThat(finderInteraction.getArgumentsByParameterName().get("title")).isEqualTo((Object) "Some.exact*title");
+            assertThat(finderInteraction.getArgumentsByParameterName()).hasSize(1);
         }
     }
 }

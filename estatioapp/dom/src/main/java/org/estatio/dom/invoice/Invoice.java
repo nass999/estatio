@@ -54,7 +54,7 @@ import org.apache.isis.applib.annotation.Where;
 
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 
-import org.estatio.dom.EstatioDomainObject;
+import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.JdoColumnLength;
 import org.estatio.dom.apptenancy.WithApplicationTenancyAny;
 import org.estatio.dom.apptenancy.WithApplicationTenancyPathPersisted;
@@ -184,7 +184,7 @@ import lombok.Setter;
 @DomainObject(editing = Editing.DISABLED)
 @DomainObjectLayout(bookmarking = BookmarkPolicy.AS_ROOT)
 public class Invoice
-        extends EstatioDomainObject<Invoice>
+        extends UdoDomainObject2<Invoice>
         implements WithApplicationTenancyAny, WithApplicationTenancyPathPersisted {
 
     public Invoice() {
@@ -552,7 +552,7 @@ public class Invoice
             final BigDecimal netAmount,
             final @Parameter(optionality = Optionality.OPTIONAL) LocalDate startDate,
             final @Parameter(optionality = Optionality.OPTIONAL) LocalDate endDate) {
-        InvoiceItem invoiceItem = invoiceItems.newInvoiceItem(this, getDueDate());
+        InvoiceItem invoiceItem = invoiceItemRepository.newInvoiceItem(this, getDueDate());
         invoiceItem.setQuantity(quantity);
         invoiceItem.setCharge(charge);
         invoiceItem.setDescription(charge.getDescription());
@@ -698,5 +698,5 @@ public class Invoice
     InvoiceRepository invoiceRepository;
 
     @javax.inject.Inject
-    InvoiceItems invoiceItems;
+    InvoiceItemRepository invoiceItemRepository;
 }

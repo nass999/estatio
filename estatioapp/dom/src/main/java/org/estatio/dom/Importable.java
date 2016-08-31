@@ -22,7 +22,19 @@ import java.util.List;
 
 public interface Importable {
 
-    public List<Object> importData();
+    /**
+     * @param previousRow, if any.
+     * @return created objects (so that the fixture framework can make available to calling test or in the UI)
+     */
+    List<Object> importData(Object previousRow);
 
-    public List<Class> importAfter();
+    /**
+     * Defines the order in which all {@link Importable}s are loaded.
+     *
+     * <p>
+     *     NB: this is to replace the ImportOrder that has a hard-coded list of classes (WIP).
+     * </p>
+     */
+    List<Class> importAfter();
+
 }

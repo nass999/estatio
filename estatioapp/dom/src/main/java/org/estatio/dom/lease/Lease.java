@@ -56,10 +56,12 @@ import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.applib.services.clock.ClockService;
 import org.apache.isis.applib.services.eventbus.ActionDomainEvent;
 
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 
+import org.estatio.app.security.EstatioRole;
 import org.estatio.dom.EstatioUserRole;
 import org.estatio.dom.JdoColumnLength;
 import org.estatio.dom.RegexValidation;
@@ -79,17 +81,17 @@ import org.estatio.dom.bankmandate.BankMandateRepository;
 import org.estatio.dom.bankmandate.Scheme;
 import org.estatio.dom.bankmandate.SequenceType;
 import org.estatio.dom.charge.Charge;
+import org.estatio.dom.charge.ChargeRepository;
 import org.estatio.dom.financial.FinancialAccount;
 import org.estatio.dom.financial.bankaccount.BankAccount;
-import org.estatio.dom.financial.bankaccount.BankAccounts;
+import org.estatio.dom.financial.bankaccount.BankAccountRepository;
 import org.estatio.dom.invoice.PaymentMethod;
 import org.estatio.dom.lease.breaks.BreakOption;
-import org.estatio.dom.lease.breaks.BreakOptions;
+import org.estatio.dom.lease.breaks.BreakOptionRepository;
 import org.estatio.dom.party.Party;
 import org.estatio.dom.utils.JodaPeriodUtils;
 import org.estatio.dom.utils.StringUtils;
 import org.estatio.dom.valuetypes.LocalDateInterval;
-import org.estatio.services.clock.ClockService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -108,9 +110,10 @@ import lombok.Setter;
                 name = "matchByReferenceOrName", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.estatio.dom.lease.Lease "
-                        + "WHERE (reference.matches(:referenceOrName)"
-                        + "|| name.matches(:referenceOrName))"
-                        + "&& (:includeTerminated || tenancyEndDate == null || tenancyEndDate >= :date)"),
+                        + "WHERE (reference.matches(:referenceOrName) "
+                        + "|| name.matches(:referenceOrName)) "
+                        + "&& (:includeTerminated || tenancyEndDate == null || tenancyEndDate >= :date) "
+                        + "ORDER BY reference"),
         @javax.jdo.annotations.Query(
                 name = "findByProperty", language = "JDOQL",
                 value = "SELECT "
@@ -118,7 +121,8 @@ import lombok.Setter;
                         + "WHERE occupancies.contains(occ) "
                         + "&& (occ.unit.property == :property) "
                         + "VARIABLES "
-                        + "org.estatio.dom.lease.Occupancy occ"),
+                        + "org.estatio.dom.lease.Occupancy occ "
+                        + "ORDER BY reference"),
         @javax.jdo.annotations.Query(
                 name = "findByBrand", language = "JDOQL",
                 value = "SELECT "
@@ -127,7 +131,8 @@ import lombok.Setter;
                         + "&& (occ.brand == :brand)) "
                         + "&& (:includeTerminated || tenancyEndDate == null || tenancyEndDate >= :date) "
                         + "VARIABLES "
-                        + "org.estatio.dom.lease.Occupancy occ"),
+                        + "org.estatio.dom.lease.Occupancy occ "
+                        + "ORDER BY reference"),
         @javax.jdo.annotations.Query(
                 name = "findByAssetAndActiveOnDate", language = "JDOQL",
                 value = "SELECT "
@@ -137,7 +142,8 @@ import lombok.Setter;
                         + "&& (tenancyEndDate == null || tenancyEndDate >= :activeOnDate) "
                         + "&& (occ.unit.property == :asset) "
                         + "VARIABLES "
-                        + "org.estatio.dom.lease.Occupancy occ"),
+                        + "org.estatio.dom.lease.Occupancy occ "
+                        + "ORDER BY reference"),
         @javax.jdo.annotations.Query(
                 name = "findExpireInDateRange", language = "JDOQL",
                 value = "SELECT " +
@@ -161,7 +167,6 @@ public class Lease
     public void created() {
         setStatus(LeaseStatus.ACTIVE);
     }
-
 
     // //////////////////////////////////////
 
@@ -244,8 +249,8 @@ public class Lease
     /**
      * The {@link Property} of the (first of the) {@link #getOccupancies()
      * LeaseUnit}s.
-     * <p>
-     * <p>
+     * <p/>
+     * <p/>
      * It is not possible for the {@link Occupancy}s to belong to different
      * {@link Property properties}, and so it is sufficient to obtain the
      * {@link Property} of the first such {@link Occupancy occupancy}.
@@ -253,7 +258,7 @@ public class Lease
 
     @org.apache.isis.applib.annotation.Property(hidden = Where.PARENTED_TABLES)
     public Property getProperty() {
-        if (!getOccupancies().isEmpty()){
+        if (!getOccupancies().isEmpty()) {
             return getOccupancies().first().getUnit().getProperty();
         }
         return null;
@@ -290,12 +295,12 @@ public class Lease
     public Lease changeComments(
             @ParameterLayout(multiLine = 5)
             final String comments
-    ){
+    ) {
         setComments(comments);
         return this;
     }
 
-    public String default0ChangeComments(){
+    public String default0ChangeComments() {
         return getComments();
     }
 
@@ -367,6 +372,13 @@ public class Lease
 
     // //////////////////////////////////////
 
+    @Override
+    public String disableChangeDates(
+            final LocalDate startDate,
+            final LocalDate endDate) {
+        return !EstatioRole.ADMINISTRATOR.isApplicableFor(getUser()) ? "You need administrator rights to change the dates" : null;
+    }
+
     @Programmatic
     @Override
     public LocalDateInterval getEffectiveInterval() {
@@ -384,7 +396,6 @@ public class Lease
 
     // //////////////////////////////////////
 
-
     @CollectionLayout(render = RenderType.EAGERLY)
     @javax.jdo.annotations.Persistent(mappedBy = "lease")
     @Getter @Setter
@@ -401,7 +412,7 @@ public class Lease
     public Occupancy newOccupancy(
             final @Parameter(optionality = Optionality.OPTIONAL) LocalDate startDate,
             final Unit unit) {
-        Occupancy occupancy = occupanciesRepo.newOccupancy(this, unit, startDate);
+        Occupancy occupancy = occupancyRepository.newOccupancy(this, unit, startDate);
         occupancies.add(occupancy);
         return occupancy;
     }
@@ -448,24 +459,32 @@ public class Lease
             final InvoicingFrequency invoicingFrequency,
             final PaymentMethod paymentMethod,
             final LocalDate startDate) {
-        LeaseItem leaseItem = leaseItems.newLeaseItem(this, type, charge, invoicingFrequency, paymentMethod, startDate);
+        LeaseItem leaseItem = leaseItemRepository.newLeaseItem(this, type, charge, invoicingFrequency, paymentMethod, startDate);
         return leaseItem;
     }
 
     public List<Charge> choices1NewItem() {
-        return leaseItems.choices2NewLeaseItem(this);
+        return chargeRepository.chargesForCountry(this.getApplicationTenancy());
     }
 
     public LocalDate default4NewItem() {
-        return leaseItems.default5NewLeaseItem(this);
+        return this.getStartDate();
     }
 
-    public String validateNewItem(final LeaseItemType type,
-                                  final Charge charge,
-                                  final InvoicingFrequency invoicingFrequency,
-                                  final PaymentMethod paymentMethod,
-                                  final LocalDate startDate) {
-        return leaseItems.validateNewLeaseItem(this, type, charge, invoicingFrequency, paymentMethod, startDate);
+    public String validateNewItem(
+            final LeaseItemType type,
+            final Charge charge,
+            final InvoicingFrequency invoicingFrequency,
+            final PaymentMethod paymentMethod,
+            final LocalDate startDate) {
+        final List<Charge> validCharges = choices1NewItem();
+        if (!validCharges.contains(charge)) {
+            return String.format(
+                    "Charge (with app tenancy level '%s') is not valid for this lease",
+                    charge.getApplicationTenancyPath());
+        }
+
+        return null;
     }
 
     public String disableNewItem() {
@@ -475,10 +494,10 @@ public class Lease
     public Agreement changePrevious(
             @Parameter(optionality = Optionality.OPTIONAL)
             final Agreement previousAgreement) {
-        if (getPrevious()!=null) {
+        if (getPrevious() != null) {
             getPrevious().setNext(null);
         }
-        if (previousAgreement!=null) {
+        if (previousAgreement != null) {
             previousAgreement.setNext(this);
         }
         return this;
@@ -489,14 +508,14 @@ public class Lease
             // OK to set to null
             return null;
         }
-        if (previousAgreement.getNext() != null){
+        if (previousAgreement.getNext() != null) {
             return "Not allowed: the agreement chosen already is already linked to a next.";
         }
-        if (this.getInterval().overlaps(previousAgreement.getInterval())){
+        if (this.getInterval().overlaps(previousAgreement.getInterval())) {
             return "Not allowed: overlapping date intervals";
         }
         // case: interval previous not overlapping, but before this interval
-        if (previousAgreement.getEndDate()==null || this.getStartDate().isBefore(previousAgreement.getEndDate())){
+        if (previousAgreement.getEndDate() == null || this.getStartDate().isBefore(previousAgreement.getEndDate())) {
             return "Not allowed: previous agreement interval should be before this agreements interval";
         }
         Lease previousLease = (Lease) previousAgreement;
@@ -515,7 +534,7 @@ public class Lease
             final LeaseItemType itemType,
             final LocalDate itemStartDate,
             final BigInteger sequence) {
-        return leaseItems.findLeaseItem(this, itemType, itemStartDate, sequence);
+        return leaseItemRepository.findLeaseItem(this, itemType, itemStartDate, sequence);
     }
 
     @Programmatic
@@ -524,7 +543,7 @@ public class Lease
             final Charge charge,
             final LocalDate itemStartDate
     ) {
-        return leaseItems.findByLeaseAndTypeAndChargeAndStartDate(this, itemType, charge, itemStartDate);
+        return leaseItemRepository.findByLeaseAndTypeAndChargeAndStartDate(this, itemType, charge, itemStartDate);
     }
 
     @Programmatic
@@ -560,14 +579,12 @@ public class Lease
 
     // //////////////////////////////////////
 
-
     @CollectionLayout(render = RenderType.EAGERLY)
     @javax.jdo.annotations.Persistent(mappedBy = "lease")
     @Getter @Setter
     private SortedSet<BreakOption> breakOptions = new TreeSet<>();
 
     // //////////////////////////////////////
-
 
     @org.apache.isis.applib.annotation.Property(hidden = Where.ALL_TABLES, editing = Editing.DISABLED, optionality = Optionality.OPTIONAL)
     @javax.jdo.annotations.Column(name = "paidByBankMandateId")
@@ -607,7 +624,7 @@ public class Lease
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private List<BankMandate> existingBankMandatesForTenant() {
         final AgreementRole tenantRole = getSecondaryAgreementRole();
         if (tenantRole == null || !tenantRole.isCurrent()) {
@@ -708,7 +725,7 @@ public class Lease
     private List<BankAccount> existingBankAccountsForTenant() {
         final Party tenant = getSecondaryParty();
         if (tenant != null) {
-            return financialAccounts.findBankAccountsByOwner(tenant);
+            return bankAccountRepository.findBankAccountsByOwner(tenant);
         } else {
             return Collections.emptyList();
         }
@@ -775,7 +792,7 @@ public class Lease
     }
 
     public String disableTerminate() {
-        if (!(getStatus().equals(LeaseStatus.ACTIVE ) || getStatus().equals(LeaseStatus.SUSPENDED_PARTIALLY))){
+        if (!(getStatus().equals(LeaseStatus.ACTIVE) || getStatus().equals(LeaseStatus.SUSPENDED_PARTIALLY))) {
             return "Status is not Active or Suspended Partially";
         }
         return null;
@@ -838,8 +855,7 @@ public class Lease
 
     // //////////////////////////////////////
 
-    @Programmatic
-    Lease copyToNewLease(
+    @Programmatic Lease copyToNewLease(
             final String reference,
             final String name,
             final Party tenant,
@@ -861,7 +877,7 @@ public class Lease
 
         copyOccupancies(newLease, tenancyStartDate);
         copyItemsAndTerms(newLease, tenancyStartDate);
-        breakOptionsService.copyBreakOptions(this, newLease, tenancyStartDate);
+        breakOptionRepository.copyBreakOptions(this, newLease, tenancyStartDate);
         copyAgreementRoleCommunicationChannels(newLease, tenancyStartDate);
         newLease.setComments(this.getComments());
         this.setNext(newLease);
@@ -1012,13 +1028,13 @@ public class Lease
     // //////////////////////////////////////
 
     @Inject
-    LeaseItems leaseItems;
+    LeaseItemRepository leaseItemRepository;
 
     @Inject
-    Occupancies occupanciesRepo;
+    OccupancyRepository occupancyRepository;
 
     @Inject
-    BankAccounts financialAccounts;
+    BankAccountRepository bankAccountRepository;
 
     @Inject
     BankMandateRepository bankMandateRepository;
@@ -1030,7 +1046,10 @@ public class Lease
     UnitRepository unitRepository;
 
     @Inject
-    BreakOptions breakOptionsService;
+    BreakOptionRepository breakOptionRepository;
+
+    @Inject
+    ChargeRepository chargeRepository;
 
     @Inject
     ClockService clockService;

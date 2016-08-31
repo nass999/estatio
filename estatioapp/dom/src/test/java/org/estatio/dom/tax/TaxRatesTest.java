@@ -25,21 +25,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.isis.applib.query.Query;
-import org.apache.isis.core.commons.matchers.IsisMatchers;
 
 import org.estatio.dom.FinderInteraction;
 import org.estatio.dom.FinderInteraction.FinderMethod;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TaxRatesTest {
 
     FinderInteraction finderInteraction;
 
     TaxRateRepository taxRateRepository;
-
-    TaxRateMenu taxRateMenu;
 
     Tax tax;
     LocalDate date;
@@ -70,27 +66,6 @@ public class TaxRatesTest {
                 return null;
             }
         };
-
-        taxRateMenu = new TaxRateMenu() {
-
-            @Override
-            protected <T> T firstMatch(Query<T> query) {
-                finderInteraction = new FinderInteraction(query, FinderMethod.FIRST_MATCH);
-                return null;
-            }
-
-            @Override
-            protected List<TaxRate> allInstances() {
-                finderInteraction = new FinderInteraction(null, FinderMethod.ALL_INSTANCES);
-                return null;
-            }
-
-            @Override
-            protected <T> List<T> allMatches(Query<T> query) {
-                finderInteraction = new FinderInteraction(query, FinderMethod.ALL_MATCHES);
-                return null;
-            }
-        };
     }
 
     public static class FindTaxRateByTaxAndDate extends TaxRatesTest {
@@ -99,24 +74,13 @@ public class TaxRatesTest {
 
             taxRateRepository.findTaxRateByTaxAndDate(tax, date);
 
-            assertThat(finderInteraction.getFinderMethod(), is(FinderMethod.FIRST_MATCH));
-            assertThat(finderInteraction.getResultType(), IsisMatchers.classEqualTo(TaxRate.class));
-            assertThat(finderInteraction.getQueryName(), is("findByTaxAndDate"));
-            assertThat(finderInteraction.getArgumentsByParameterName().get("tax"), is((Object) tax));
-            assertThat(finderInteraction.getArgumentsByParameterName().get("date"), is((Object) date));
+            assertThat(finderInteraction.getFinderMethod()).isEqualTo(FinderMethod.FIRST_MATCH);
+            assertThat(finderInteraction.getResultType()).isEqualTo(TaxRate.class);
+            assertThat(finderInteraction.getQueryName()).isEqualTo("findByTaxAndDate");
+            assertThat(finderInteraction.getArgumentsByParameterName().get("tax")).isEqualTo((Object) tax);
+            assertThat(finderInteraction.getArgumentsByParameterName().get("date")).isEqualTo((Object) date);
 
-            assertThat(finderInteraction.getArgumentsByParameterName().size(), is(2));
-        }
-    }
-
-    public static class AllTaxRates extends TaxRatesTest {
-
-        @Test
-        public void happyCase() {
-
-            taxRateMenu.allTaxRates();
-
-            assertThat(finderInteraction.getFinderMethod(), is(FinderMethod.ALL_INSTANCES));
+            assertThat(finderInteraction.getArgumentsByParameterName()).hasSize(2);
         }
     }
 

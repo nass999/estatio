@@ -1,18 +1,22 @@
 package org.estatio.dom.lease.status;
 
 import java.math.BigInteger;
+
 import javax.inject.Inject;
+
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import org.apache.isis.applib.services.clock.ClockService;
+
 import org.estatio.dom.lease.Lease;
 import org.estatio.dom.lease.LeaseItem;
 import org.estatio.dom.lease.LeaseItemStatus;
 import org.estatio.dom.lease.LeaseStatus;
-import org.estatio.services.clock.ClockService;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LeaseStatusServiceTest {
 
@@ -32,7 +36,6 @@ public class LeaseStatusServiceTest {
                 return new LocalDate(2014, 4, 1);
             }
         };
-
     }
 
     @Test
@@ -76,8 +79,8 @@ public class LeaseStatusServiceTest {
             lease.getItems().add(item);
             seq++;
         }
-        assertThat(lease.getItems().size(), is(items.length));
-        assertThat(service.statusOf(lease), is(expectedStatus));
+        assertThat(lease.getItems()).hasSize(items.length);
+        assertThat(service.statusOf(lease)).isEqualTo(expectedStatus);
     }
 
     LeaseItem testItem(LocalDate startDate, LeaseItemStatus status) {

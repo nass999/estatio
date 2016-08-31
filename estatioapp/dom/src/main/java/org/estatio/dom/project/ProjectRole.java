@@ -33,15 +33,13 @@ import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.Editing;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
-import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.SemanticsOf;
-import org.apache.isis.applib.annotation.Title;
 import org.apache.isis.applib.annotation.Where;
-import org.estatio.dom.EstatioDomainObject;
+
 import org.estatio.dom.JdoColumnLength;
 import org.estatio.dom.UdoDomainObject;
 import org.estatio.dom.WithIntervalContiguous;
@@ -197,7 +195,7 @@ public class ProjectRole
             final LocalDate endDate) {
     	
         LocalDateInterval newInterval = new LocalDateInterval(startDate, endDate);
-        for (Iterator<ProjectRole> it = projectRoles.findByProject(project).iterator(); it.hasNext();){
+        for (Iterator<ProjectRole> it = projectRoleRepository.findByProject(project).iterator(); it.hasNext();){
         	
         	ProjectRole pr = it.next();
         	if (!(pr.equals(this)) && pr.getParty().equals(party) && pr.getType().equals(type)){
@@ -259,7 +257,7 @@ public class ProjectRole
         return helper.getTimeline(getProject().getRoles(), getType().matchingRole());
     }
 
-    @Inject ProjectRoles projectRoles;
+    @Inject ProjectRoleRepository projectRoleRepository;
 
     // //////////////////////////////////////
 
@@ -285,7 +283,7 @@ public class ProjectRole
 
         @Override
         public ProjectRole newRole(final LocalDate startDate, final LocalDate endDate) {
-            return pr.getProject().projectRoles.createRole(pr.getProject(),pr.getType(), party, startDate, endDate);
+            return pr.getProject().projectRoleRepository.createRole(pr.getProject(),pr.getType(), party, startDate, endDate);
         }
     }
 

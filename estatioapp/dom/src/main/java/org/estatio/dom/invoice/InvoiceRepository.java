@@ -34,7 +34,7 @@ import org.estatio.dom.currency.Currency;
 import org.estatio.dom.lease.Lease;
 import org.estatio.dom.lease.invoicing.InvoiceCalculationParameters;
 import org.estatio.dom.party.Party;
-import org.estatio.domsettings.EstatioSettingsService;
+import org.estatio.dom.appsettings.EstatioSettingsService;
 
 @DomainService(repositoryFor = Invoice.class)
 @DomainServiceLayout(
@@ -234,6 +234,11 @@ public class InvoiceRepository extends UdoDomainRepositoryAndFactory<Invoice> {
     }
 
     // //////////////////////////////////////
+
+    @Programmatic
+    public List<Invoice> allInvoices() {
+        return allInstances();
+    }
 
     @Programmatic
     public void removeRuns(InvoiceCalculationParameters parameters) {

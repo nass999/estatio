@@ -23,7 +23,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.Programmatic;
-import org.estatio.dom.EstatioDomainObject;
+import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.UdoDomainService;
 
 
@@ -32,8 +32,6 @@ import org.estatio.dom.UdoDomainService;
  */
 @DomainService
 public class ApplicationTenancyInvariantsService extends UdoDomainService<ApplicationTenancyInvariantsService> {
-
-    public static final String GLOBAL_APPLICATION_TENANCY_PATH = "/";
 
     // //////////////////////////////////////
 
@@ -78,7 +76,7 @@ public class ApplicationTenancyInvariantsService extends UdoDomainService<Applic
     private void on(
             final ApplicationTenancyEventChanged ev,
             final Class<? extends ApplicationTenancyEventChanged> eventClass) {
-        final EstatioDomainObject source = ev.getSource();
+        final UdoDomainObject2 source = ev.getSource();
         final List<ApplicationTenancySubscriberAlgorithm> algorithms = algorithmRegistry.lookup(source, eventClass);
 
         for (final ApplicationTenancySubscriberAlgorithm algorithm : algorithms) {

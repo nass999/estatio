@@ -25,10 +25,10 @@ import javax.inject.Inject;
 import org.joda.time.LocalDate;
 
 import org.estatio.dom.financial.FinancialAccount;
+import org.estatio.dom.financial.FinancialAccountRepository;
 import org.estatio.dom.financial.FinancialAccountTransaction;
-import org.estatio.dom.financial.FinancialAccountTransactions;
-import org.estatio.dom.financial.FinancialAccounts;
-import org.estatio.dom.party.Parties;
+import org.estatio.dom.financial.FinancialAccountTransactionRepository;
+import org.estatio.dom.party.PartyRepository;
 import org.estatio.dom.party.Party;
 import org.estatio.fixture.EstatioFixtureScript;
 
@@ -39,10 +39,10 @@ public abstract class FinancialAccountTransactionAbstract extends EstatioFixture
     }
 
     protected FinancialAccountTransaction createFinancialAccountTransaction(String partyStr, LocalDate date, BigDecimal amount, ExecutionContext executionContext) {
-        Party party = parties.findPartyByReference(partyStr);
-        FinancialAccount financialAccount = financialAccounts.findAccountsByOwner(party).get(0);
+        Party party = partyRepository.findPartyByReference(partyStr);
+        FinancialAccount financialAccount = financialAccountRepository.findAccountsByOwner(party).get(0);
 
-        FinancialAccountTransaction financialAccountTransaction = financialAccountTransactions.newTransaction(
+        FinancialAccountTransaction financialAccountTransaction = financialAccountTransactionRepository.newTransaction(
                 financialAccount,
                 date,
                 "Fixture transaction",
@@ -55,12 +55,12 @@ public abstract class FinancialAccountTransactionAbstract extends EstatioFixture
     // //////////////////////////////////////
 
     @Inject
-    private Parties parties;
+    private PartyRepository partyRepository;
 
     @Inject
-    private FinancialAccounts financialAccounts;
+    private FinancialAccountRepository financialAccountRepository;
 
     @Inject
-    private FinancialAccountTransactions financialAccountTransactions;
+    private FinancialAccountTransactionRepository financialAccountTransactionRepository;
 
 }

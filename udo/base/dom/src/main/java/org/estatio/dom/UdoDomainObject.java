@@ -23,12 +23,12 @@ import javax.jdo.JDOHelper;
 
 import org.apache.isis.applib.AbstractDomainObject;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.services.clock.ClockService;
 import org.apache.isis.applib.services.eventbus.EventBusService;
 import org.apache.isis.applib.util.ObjectContracts;
 
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 
-import org.estatio.services.clock.ClockService;
 
 /**
  * A domain object that is mutable and can be changed by multiple users over time,
@@ -43,7 +43,7 @@ import org.estatio.services.clock.ClockService;
  * @javax.jdo.annotations.Version(
  *     strategy=VersionStrategy.VERSION_NUMBER,
  *     column="version")
- * public class MyDomainObject extends EstatioDomainObject {
+ * public class MyDomainObject extends UdoDomainObject2 {
  *   ...
  * }
  * </pre>

@@ -18,20 +18,22 @@
  */
 package org.estatio.fixture.charge;
 
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+
 import org.estatio.dom.apptenancy.EstatioApplicationTenancyRepository;
 import org.estatio.dom.charge.Charge;
 import org.estatio.dom.charge.ChargeGroup;
-import org.estatio.dom.charge.ChargeGroups;
+import org.estatio.dom.charge.ChargeGroupRepository;
 import org.estatio.dom.charge.ChargeRepository;
 import org.estatio.dom.tax.Tax;
-import org.estatio.dom.tax.Taxes;
+import org.estatio.dom.tax.TaxRepository;
 import org.estatio.fixture.EstatioFixtureScript;
 import org.estatio.fixture.geography.CountriesRefData;
 import org.estatio.fixture.tax.TaxRefData;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-
-import javax.inject.Inject;
-import java.util.List;
 
 public class ChargeRefData extends EstatioFixtureScript {
 
@@ -108,15 +110,15 @@ public class ChargeRefData extends EstatioFixtureScript {
 
     private void createCharges(final ExecutionContext executionContext) {
 
-        final ChargeGroup chargeGroupRent = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_RENT);
-        final ChargeGroup chargeGroupServiceCharge = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_SERVICE_CHARGE);
-        final ChargeGroup chargeGroupTurnoverRent = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_TURNOVER_RENT);
-        final ChargeGroup chargeGroupPercentage = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_PERCENTAGE);
-        final ChargeGroup chargeGroupDeposit = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_DEPOSIT);
-        final ChargeGroup chargeGroupDiscount = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_DISCOUNT);
-        final ChargeGroup chargeGroupEntryFee = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_ENTRY_FEE);
-        final ChargeGroup chargeGroupTax = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_TAX);
-        final ChargeGroup chargeGroupServiceChargeIndexable = chargeGroups.findChargeGroup(ChargeGroupRefData.REF_SERVICE_CHARGE_INDEXABLE);
+        final ChargeGroup chargeGroupRent = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_RENT);
+        final ChargeGroup chargeGroupServiceCharge = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_SERVICE_CHARGE);
+        final ChargeGroup chargeGroupTurnoverRent = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_TURNOVER_RENT);
+        final ChargeGroup chargeGroupPercentage = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_PERCENTAGE);
+        final ChargeGroup chargeGroupDeposit = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_DEPOSIT);
+        final ChargeGroup chargeGroupDiscount = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_DISCOUNT);
+        final ChargeGroup chargeGroupEntryFee = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_ENTRY_FEE);
+        final ChargeGroup chargeGroupTax = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_TAX);
+        final ChargeGroup chargeGroupServiceChargeIndexable = chargeGroupRepository.findChargeGroup(ChargeGroupRefData.REF_SERVICE_CHARGE_INDEXABLE);
 
         final List<ApplicationTenancy> countryTenancies = estatioApplicationTenancyRepository.allCountryTenancies();
 
@@ -167,7 +169,7 @@ public class ChargeRefData extends EstatioFixtureScript {
             final String chargeGroupReference,
             final String description,
             final ExecutionContext executionContext) {
-        final ChargeGroup chargeGroup = chargeGroups.createChargeGroup(
+        final ChargeGroup chargeGroup = chargeGroupRepository.createChargeGroup(
                 chargeGroupReference, description);
         return executionContext.addResult(this, chargeGroup.getReference(), chargeGroup);
     }
@@ -181,7 +183,7 @@ public class ChargeRefData extends EstatioFixtureScript {
 
         final String code = chargeReference;
 
-        final Tax tax = taxes.findByReference(taxReference);
+        final Tax tax = taxRepository.findByReference(taxReference);
         final ApplicationTenancy taxApplicationTenancy = tax.getApplicationTenancy();
 
         final Charge charge = chargeRepository.newCharge(
@@ -193,16 +195,15 @@ public class ChargeRefData extends EstatioFixtureScript {
     // //////////////////////////////////////
 
     @Inject
-    private ChargeGroups chargeGroups;
+    private ChargeGroupRepository chargeGroupRepository;
 
     @Inject
     private ChargeRepository chargeRepository;
 
     @Inject
-    private Taxes taxes;
+    private TaxRepository taxRepository;
 
     @Inject
     private EstatioApplicationTenancyRepository estatioApplicationTenancyRepository;
-
 
 }

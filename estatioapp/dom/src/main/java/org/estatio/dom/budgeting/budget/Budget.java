@@ -43,6 +43,7 @@ import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
+import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.RenderType;
@@ -52,7 +53,7 @@ import org.apache.isis.applib.annotation.Where;
 
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 
-import org.estatio.dom.EstatioDomainObject;
+import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.WithIntervalMutable;
 import org.estatio.dom.apptenancy.WithApplicationTenancyProperty;
 import org.estatio.dom.asset.Property;
@@ -62,6 +63,7 @@ import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
 import org.estatio.dom.budgeting.api.BudgetItemCreator;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationLink;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationLinkRepository;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationRepository;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.dom.budgeting.budgetitem.BudgetItemRepository;
@@ -71,7 +73,14 @@ import org.estatio.dom.budgeting.keytable.KeyTableRepository;
 import org.estatio.dom.budgeting.keytable.KeyValueMethod;
 import org.estatio.dom.budgeting.viewmodels.BudgetOverview;
 import org.estatio.dom.charge.Charge;
-import org.estatio.dom.lease.Occupancies;
+import org.estatio.dom.lease.Lease;
+import org.estatio.dom.lease.LeaseItem;
+import org.estatio.dom.lease.LeaseItemRepository;
+import org.estatio.dom.lease.LeaseItemType;
+import org.estatio.dom.lease.LeaseRepository;
+import org.estatio.dom.lease.LeaseTerm;
+import org.estatio.dom.lease.LeaseTermForServiceCharge;
+import org.estatio.dom.lease.OccupancyRepository;
 import org.estatio.dom.lease.Occupancy;
 import org.estatio.dom.utils.TitleBuilder;
 import org.estatio.dom.valuetypes.LocalDateInterval;
@@ -104,7 +113,8 @@ import lombok.Setter;
 })
 @Unique(name = "Budget_property_startDate_UNQ", members = { "property", "startDate" })
 @DomainObject()
-public class Budget extends EstatioDomainObject<Budget> implements WithIntervalMutable<Budget>, WithApplicationTenancyProperty, BudgetItemCreator {
+public class Budget extends UdoDomainObject2<Budget>
+        implements WithIntervalMutable<Budget>, WithApplicationTenancyProperty, BudgetItemCreator {
 
     public Budget() {
         super("property, startDate");
@@ -218,6 +228,40 @@ public class Budget extends EstatioDomainObject<Budget> implements WithIntervalM
         return budgetItemRepository.validateNewBudgetItem(this,budgetedValue,charge);
     }
 
+    @Action(restrictTo = RestrictTo.PROTOTYPING ,semantics = SemanticsOf.NON_IDEMPOTENT_ARE_YOU_SURE)
+    public void removeBudget(
+            @ParameterLayout(named = "This will delete the budget and all associated data including keytables, generated lease terms and calculations. (You may consider downloading the budget and the keytables beforehand.) Are you sure?")
+            final boolean areYouSure
+    ){
+        /* delete budget calculation links*/
+        for (BudgetCalculationLink link : this.getBudgetCalculationLinks()){
+            link.remove();
+        }
+
+        /* delete budget calculations*/
+        for (BudgetCalculation calculation : budgetCalculationRepository.findByBudget(this)){
+            calculation.remove();
+        }
+
+        /* of all lease items of type service_charge_budgeted delete all lease terms with no calculations*/
+        for (Lease lease : leaseRepository.allLeases()){
+            for (LeaseItem leaseItem : leaseItemRepository.findLeaseItemsByType(lease, LeaseItemType.SERVICE_CHARGE_BUDGETED)){
+                for (LeaseTerm term : leaseItem.getTerms()){
+                    LeaseTermForServiceCharge termForServiceCharge = (LeaseTermForServiceCharge) term;
+                    if (budgetCalculationLinkRepository.findByLeaseTerm(termForServiceCharge).isEmpty()){
+                        termForServiceCharge.remove();
+                    }
+                }
+            }
+        }
+
+        remove(this);
+    }
+
+    public String validateRemoveBudget(final boolean areYouSure){
+        return areYouSure ? null : "Please confirm";
+    }
+
     @Action(restrictTo = RestrictTo.PROTOTYPING, semantics = SemanticsOf.NON_IDEMPOTENT_ARE_YOU_SURE)
     @ActionLayout()
     public Budget removeAllBudgetItems() {
@@ -266,6 +310,7 @@ public class Budget extends EstatioDomainObject<Budget> implements WithIntervalM
         return total;
     }
 
+    @Action(semantics = SemanticsOf.SAFE)
     public BudgetOverview budgetOverview() {
         return new BudgetOverview(this);
     }
@@ -287,7 +332,7 @@ public class Budget extends EstatioDomainObject<Budget> implements WithIntervalM
     public List<Occupancy> getOccupanciesInBudgetInterval() {
         List<Occupancy> result = new ArrayList<>();
         for (Unit unit : unitRepository.findByProperty(getProperty())) {
-            result.addAll(occupancies.occupanciesByUnitAndInterval(unit, getInterval()));
+            result.addAll(occupancyRepository.occupanciesByUnitAndInterval(unit, getInterval()));
         }
         return result;
     }
@@ -328,12 +373,21 @@ public class Budget extends EstatioDomainObject<Budget> implements WithIntervalM
     private UnitRepository unitRepository;
 
     @Inject
-    private Occupancies occupancies;
+    private OccupancyRepository occupancyRepository;
 
     @Inject
     private BudgetCalculationRepository budgetCalculationRepository;
 
     @Inject
     private KeyTableRepository keyTableRepository;
+
+    @Inject
+    private LeaseRepository leaseRepository;
+
+    @Inject
+    private LeaseItemRepository leaseItemRepository;
+
+    @Inject
+    private BudgetCalculationLinkRepository budgetCalculationLinkRepository;
 
 }

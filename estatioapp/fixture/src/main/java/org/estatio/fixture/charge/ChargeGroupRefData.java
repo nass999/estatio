@@ -18,14 +18,14 @@
  */
 package org.estatio.fixture.charge;
 
+import javax.inject.Inject;
+
 import org.estatio.dom.apptenancy.EstatioApplicationTenancyRepository;
 import org.estatio.dom.charge.ChargeGroup;
-import org.estatio.dom.charge.ChargeGroups;
+import org.estatio.dom.charge.ChargeGroupRepository;
 import org.estatio.dom.charge.ChargeRepository;
-import org.estatio.dom.tax.Taxes;
+import org.estatio.dom.tax.TaxRepository;
 import org.estatio.fixture.EstatioFixtureScript;
-
-import javax.inject.Inject;
 
 public class ChargeGroupRefData extends EstatioFixtureScript {
 
@@ -63,7 +63,7 @@ public class ChargeGroupRefData extends EstatioFixtureScript {
             final String chargeGroupReference,
             final String description,
             final ExecutionContext executionContext) {
-        final ChargeGroup chargeGroup = chargeGroups.createChargeGroup(
+        final ChargeGroup chargeGroup = chargeGroupRepository.createChargeGroup(
                 chargeGroupReference, description);
         return executionContext.addResult(this, chargeGroup.getReference(), chargeGroup);
     }
@@ -72,13 +72,13 @@ public class ChargeGroupRefData extends EstatioFixtureScript {
     // //////////////////////////////////////
 
     @Inject
-    private ChargeGroups chargeGroups;
+    private ChargeGroupRepository chargeGroupRepository;
 
     @Inject
     private ChargeRepository chargeRepository;
 
     @Inject
-    private Taxes taxes;
+    private TaxRepository taxRepository;
 
     @Inject
     private EstatioApplicationTenancyRepository estatioApplicationTenancyRepository;
