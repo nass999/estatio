@@ -1,15 +1,23 @@
 package org.estatio.dom.budgeting.budgetcalculation;
 
 
-import org.apache.isis.applib.annotation.*;
-import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
+import org.apache.isis.applib.annotation.CollectionLayout;
+import org.apache.isis.applib.annotation.Contributed;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.RenderType;
+import org.apache.isis.applib.annotation.SemanticsOf;
+
 import org.estatio.dom.budgeting.budget.Budget;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.dom.lease.LeaseTermForServiceCharge;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 @DomainService(nature = NatureOfService.VIEW_CONTRIBUTIONS_ONLY)
 public class BudgetCalculationContributions {
@@ -28,27 +36,6 @@ public class BudgetCalculationContributions {
     public Budget assignCalculationsToLeases(final Budget budget){
         budgetCalculationService.assignBudgetCalculationsToLeases(budget);
         return budget;
-    }
-
-    @Action(semantics = SemanticsOf.SAFE)
-    @ActionLayout(contributed = Contributed.AS_ASSOCIATION)
-    @CollectionLayout(render = RenderType.LAZILY)
-    public List<BudgetCalculation> budgetedCalculations (final Budget budget) {
-        return budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.BUDGETED);
-    }
-
-    @Action(semantics = SemanticsOf.SAFE)
-    @ActionLayout(contributed = Contributed.AS_ASSOCIATION)
-    @CollectionLayout(render = RenderType.LAZILY)
-    public List<BudgetCalculation> auditedCalculations (final Budget budget) {
-        return budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.AUDITED);
-    }
-
-    @Action(semantics = SemanticsOf.SAFE)
-    @ActionLayout(contributed = Contributed.AS_ASSOCIATION)
-    @CollectionLayout(render = RenderType.EAGERLY)
-    public List<BudgetCalculation> calculations(final BudgetItemAllocation budgetItemAllocation){
-        return budgetCalculationRepository.findByBudgetItemAllocation(budgetItemAllocation);
     }
 
     @Action(semantics = SemanticsOf.SAFE)

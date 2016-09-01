@@ -242,11 +242,6 @@ public class Budget extends UdoDomainObject2<Budget>
             link.remove();
         }
 
-        /* delete budget calculations*/
-        for (BudgetCalculation calculation : budgetCalculationRepository.findByBudget(this)){
-            calculation.remove();
-        }
-
         /* of all lease items of type service_charge_budgeted delete all lease terms with no calculations*/
         for (Lease lease : leaseRepository.allLeases()){
             for (LeaseItem leaseItem : leaseItemRepository.findLeaseItemsByType(lease, LeaseItemType.SERVICE_CHARGE_BUDGETED)){
