@@ -120,12 +120,6 @@ public class Budget extends UdoDomainObject2<Budget>
         super("property, startDate");
     }
 
-    public Budget(final LocalDate startDate, final LocalDate endDate) {
-        this();
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
     public String title() {
         return TitleBuilder.start()
                 .withParent(getProperty())

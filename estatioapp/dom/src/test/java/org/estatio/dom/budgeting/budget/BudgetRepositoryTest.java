@@ -17,7 +17,6 @@
 
 package org.estatio.dom.budgeting.budget;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -38,9 +37,6 @@ import org.estatio.dom.valuetypes.LocalDateInterval;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Created by jodo on 30/04/15.
- */
 public class BudgetRepositoryTest {
 
     FinderInteraction finderInteraction;
@@ -125,12 +121,7 @@ public class BudgetRepositoryTest {
 
         @Before
         public void setup() {
-            budgetRepository = new BudgetRepository() {
-                @Override
-                public List<Budget> findByProperty(final Property property) {
-                    return Arrays.asList(new Budget(new LocalDate(2011, 1, 1), new LocalDate(2012, 1, 1)));
-                }
-            };
+            budgetRepository = new BudgetRepository();
             budgetRepository.setContainer(mockContainer);
         }
 
