@@ -13,7 +13,7 @@ import org.apache.isis.applib.fixturescripts.FixtureScript;
 
 import org.isisaddons.module.security.SecurityModule;
 
-import org.incode.module.doctemplates.dom.DocTemplatesModule;
+import org.incode.module.documents.dom.DocumentsModule;
 
 import org.estatio.canonical.EstatioCanonicalModule;
 import org.estatio.dom.EstatioDomainModule;
@@ -43,7 +43,7 @@ public class EstatioAppManifest implements AppManifest {
                         EstatioDomainLinkModule.class,
                         EstatioDomainSettingsModule.class,
 
-                        org.incode.module.doctemplates.dom.DocTemplatesModule.class,
+                        DocumentsModule.class,
 
                         // TODO: sort out packages for the 'fixture' module
                         EstatioFixtureModule.class,
@@ -65,7 +65,7 @@ public class EstatioAppManifest implements AppManifest {
                         // don't include the settings module, instead we use EstatioDomainSettingsModule
                         // org.isisaddons.module.settings.SettingsModule.class,
                         org.isisaddons.module.stringinterpolator.StringInterpolatorModule.class,
-                        org.isisaddons.module.freemarker.dom.FreeMarkerModule.class
+                        org.isisaddons.module.freemarker.dom.XDocReportModule.class
                 )
         );
         return modules;

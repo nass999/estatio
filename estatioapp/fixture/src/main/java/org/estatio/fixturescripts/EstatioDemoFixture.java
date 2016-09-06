@@ -26,9 +26,13 @@ import org.estatio.fixture.asset.PropertyForCARTEST;
 import org.estatio.fixture.asset.PropertyForGraIt;
 import org.estatio.fixture.asset.PropertyForHanSe;
 import org.estatio.fixture.asset.PropertyForVivFr;
+import org.estatio.fixture.budget.BudgetItemAllocationsForOxf;
 import org.estatio.fixture.budget.BudgetsForOxf;
 import org.estatio.fixture.budget.KeyTablesForOxf;
-import org.estatio.fixture.budget.BudgetItemAllocationsForOxf;
+import org.estatio.fixture.documents.DocumentTypeAndTemplateForDemoSsrsOnProperty;
+import org.estatio.fixture.documents.DocumentTemplateForHelloGlobal;
+import org.estatio.fixture.documents.DocumentTypeAndTemplatesForItalianInvoicesUsingSsrs;
+import org.estatio.fixture.documents.FloorPlanDocumentForGbOxf;
 import org.estatio.fixture.financial.BankAccountAndMandateForPoisonNl;
 import org.estatio.fixture.financial.BankAccountAndMandateForTopModelGb;
 import org.estatio.fixture.financial.BankAccountForAcmeNl;
@@ -38,7 +42,6 @@ import org.estatio.fixture.financial.BankAccountForMediaXGb;
 import org.estatio.fixture.financial.BankAccountForMiracleGb;
 import org.estatio.fixture.financial.BankAccountForPretGb;
 import org.estatio.fixture.guarantee.GuaranteeForOxfTopModel001Gb;
-import org.estatio.fixture.interactivemap.InteractiveMapDocumentForOxf;
 import org.estatio.fixture.invoice.InvoiceForLeaseItemTypeOfDiscountOneQuarterForOxfMiracle005;
 import org.estatio.fixture.invoice.InvoiceForLeaseItemTypeOfRentOneQuarterForKalPoison001;
 import org.estatio.fixture.invoice.InvoiceForLeaseItemTypeOfRentOneQuarterForOxfPoison003;
@@ -92,7 +95,12 @@ public class EstatioDemoFixture extends DiscoverableFixtureScript {
         executionContext.executeChild(this, new ProgramForKal());
         executionContext.executeChild(this, new ProjectsForKal());
         executionContext.executeChild(this, new ProjectsForGra());
-        executionContext.executeChild(this, new InteractiveMapDocumentForOxf());
+
+        executionContext.executeChild(this, new DocumentTemplateForHelloGlobal());
+        executionContext.executeChild(this, new FloorPlanDocumentForGbOxf());
+        executionContext.executeChild(this, new DocumentTypeAndTemplatesForItalianInvoicesUsingSsrs());
+        executionContext.executeChild(this, new DocumentTypeAndTemplateForDemoSsrsOnProperty());
+
         executionContext.executeChild(this, new BudgetsForOxf());
         executionContext.executeChild(this, new KeyTablesForOxf());
         executionContext.executeChild(this, new BudgetItemAllocationsForOxf());

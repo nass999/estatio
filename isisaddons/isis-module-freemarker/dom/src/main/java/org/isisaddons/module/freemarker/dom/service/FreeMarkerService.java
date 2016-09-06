@@ -29,9 +29,8 @@ import com.google.common.base.Splitter;
 
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.services.config.ConfigurationService;
-
-import org.isisaddons.module.freemarker.dom.spi.FreeMarkerTemplateLoader;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -41,6 +40,7 @@ import freemarker.template.TemplateExceptionHandler;
 @DomainService(nature = NatureOfService.DOMAIN)
 public class FreeMarkerService {
 
+    private TemplateLoaderFromThreadLocal templateLoader;
     private Configuration cfg;
 
     @PostConstruct
@@ -55,19 +55,41 @@ public class FreeMarkerService {
                         : TemplateExceptionHandler.RETHROW_HANDLER;
         cfg.setTemplateExceptionHandler(handler);
 
-        cfg.setTemplateLoader(new TemplateLoaderDelegatingToInjectedLoaders(freemarkerFreeMarkerTemplateLoaders));
+        templateLoader = new TemplateLoaderFromThreadLocal();
+        cfg.setTemplateLoader(templateLoader);
 
         cfg.setLogTemplateExceptions(false);
     }
 
-    public String process(final String templateReference, String templateAtPath, final Map<String, String> properties)
+    /**
+     * Uses the provided document type (reference) and atPath to lookup the template's text.
+     *
+     * @param dataModel - will usually be a strongly-typed DTO, but a {@link Map} can also be used.
+     */
+    @Programmatic
+    public String render(
+            final String documentTypeReference,
+            final String atPath,
+            final long version,
+            final String templateChars,
+            final Object dataModel)
             throws IOException, TemplateException {
-        final String templateName = join(templateReference, templateAtPath);
-        final Template template = cfg.getTemplate(templateName);
-        final StringWriter sw = new StringWriter();
-        template.process(properties, sw);
-        return sw.toString();
+
+        final String templateName = join(documentTypeReference, atPath);
+
+        return templateLoader
+                .withTemplateSource(templateName, version, templateChars, new TemplateLoaderFromThreadLocal.Block() {
+            @Override
+            public String exec(final TemplateSource templateSource) throws IOException, TemplateException {
+                final StringWriter sw = new StringWriter();
+                final Template template = cfg.getTemplate(templateSource.getTemplateName());
+                template.process(dataModel, sw);
+                return sw.toString();
+            }
+        });
+
     }
+
 
     //region > join, split (helpers)
 
@@ -90,9 +112,6 @@ public class FreeMarkerService {
     //region > injected services
     @Inject
     ConfigurationService configurationService;
-
-    @Inject
-    List<FreeMarkerTemplateLoader> freemarkerFreeMarkerTemplateLoaders;
     //endregion
 
 }

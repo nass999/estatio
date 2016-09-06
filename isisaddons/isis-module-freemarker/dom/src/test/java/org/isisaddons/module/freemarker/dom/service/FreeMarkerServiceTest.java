@@ -16,20 +16,18 @@
  */
 package org.isisaddons.module.freemarker.dom.service;
 
-import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 
 import org.jmock.auto.Mock;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import org.apache.isis.applib.services.config.ConfigurationService;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
-
-import org.isisaddons.module.freemarker.dom.spi.FreeMarkerTemplateLoader;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -46,30 +44,51 @@ public class FreeMarkerServiceTest {
     @Mock
     ConfigurationService mockConfigurationService;
 
-    FreeMarkerService init(final String templateText, final int version) {
+    FreeMarkerService service;
 
-        FreeMarkerService service = new FreeMarkerService();
-
-        // simulate the wiring that Isis would normally do by itself
-        FreeMarkerTemplateLoader loader = new FreeMarkerTemplateLoader.Simple(templateText, version);
-        service.freemarkerFreeMarkerTemplateLoaders = Collections.singletonList(loader);
+    @Before
+    public void setUp() throws Exception {
+        service = new FreeMarkerService();
 
         service.configurationService = mockConfigurationService;
 
         service.init();
-        return service;
     }
 
-
     @Test
-    public void simple() throws Exception {
+    public void usingProperties() throws Exception {
 
         // given
-        FreeMarkerService service = init("<h1>Welcome ${user}!</h1>", 0);
         Map<String, String> properties = ImmutableMap.of("user", "John Doe");
 
         // when
-        String merged = service.process("a", "/", properties);
+        String merged = service.render("a", "/", 1, "<h1>Welcome ${user}!</h1>",  properties);
+
+        // then
+        assertThat(merged, is("<h1>Welcome John Doe!</h1>"));
+    }
+
+    public static class UserDataModel {
+        private String user;
+
+        public String getUser() {
+            return user;
+        }
+
+        public void setUser(final String user) {
+            this.user = user;
+        }
+    }
+
+    @Test
+    public void usingDataModel() throws Exception {
+
+        // given
+        final UserDataModel userDataModel = new UserDataModel();
+        userDataModel.setUser("John Doe");
+
+        // when
+        String merged = service.render("a", "/", 1, "<h1>Welcome ${user}!</h1>", userDataModel);
 
         // then
         assertThat(merged, is("<h1>Welcome John Doe!</h1>"));
