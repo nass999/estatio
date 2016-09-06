@@ -2,6 +2,7 @@ package org.estatio.dom.budgetassignment;
 
 import java.math.BigDecimal;
 
+import javax.inject.Inject;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -17,6 +18,7 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 
 import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.apptenancy.WithApplicationTenancyProperty;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 import org.estatio.dom.charge.Charge;
 import org.estatio.dom.lease.Occupancy;
 
@@ -107,5 +109,30 @@ public class ServiceChargeTerm extends UdoDomainObject2<ServiceChargeTerm> imple
     public BigDecimal getEffectiveAuditedValue(){
         return getManualAuditedValue()!=null ? getManualAuditedValue() : getCalculatedAuditedValue();
     }
+
+    @Action(semantics = SemanticsOf.IDEMPOTENT)
+    public void calculate() {
+        BigDecimal calculatedBudgetedValue = BigDecimal.ZERO;
+        BigDecimal calculatedAuditedValue = BigDecimal.ZERO;
+        for (BudgetCalculationLink link : budgetCalculationLinkRepository.findByServiceChargeTerm(this)){
+            BudgetCalculation calculation = link.getBudgetCalculation();
+            switch (calculation.getCalculationType()){
+
+            case BUDGETED:
+                calculatedBudgetedValue = calculatedBudgetedValue.add(calculation.getValue());
+                break;
+
+            case AUDITED:
+                calculatedAuditedValue = calculatedAuditedValue.add(calculation.getValue());
+                break;
+
+            }
+        }
+        setCalculatedBudgetedValue(calculatedBudgetedValue);
+        setCalculatedAuditedValue(calculatedAuditedValue);
+    }
+
+    @Inject
+    private BudgetCalculationLinkRepository budgetCalculationLinkRepository;
 
 }

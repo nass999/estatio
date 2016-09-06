@@ -38,6 +38,7 @@ public class BudgetAssignmentService {
                     for (BudgetCalculation budgetCalculation : budgetCalculationsForOccupancy){
                         budgetCalculationLinkRepository.findOrCreateBudgetCalculationLink(budgetCalculation, serviceChargeTerm);
                     }
+                    serviceChargeTerm.calculate();
 
                 }
 
