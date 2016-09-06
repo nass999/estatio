@@ -95,6 +95,14 @@ import lombok.Setter;
                         + " && (endDate == null || endDate >= :dateAsEndDate) "
                         + "ORDER BY startDate "),
         @javax.jdo.annotations.Query(
+                name = "findByLeaseAndActiveDuringInterval", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.estatio.dom.lease.Occupancy "
+                        + "WHERE lease == :lease "
+                        + " && (startDate == null || startDate <= :intervalEndDate) "
+                        + " && (endDate == null || endDate >= :intervalStartDate) "
+                        + "ORDER BY startDate "),
+        @javax.jdo.annotations.Query(
                 name = "findByLeaseAndUnitAndStartDate", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.estatio.dom.lease.Occupancy "

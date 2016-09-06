@@ -52,10 +52,11 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 
 import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.apptenancy.WithApplicationTenancyProperty;
+import org.estatio.dom.budgetassignment.BudgetCalculationLink;
+import org.estatio.dom.budgetassignment.ServiceChargeTerm;
 import org.estatio.dom.budgeting.Distributable;
 import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
 import org.estatio.dom.budgeting.keyitem.KeyItem;
-import org.estatio.dom.lease.LeaseTermForServiceCharge;
 import org.estatio.dom.utils.TitleBuilder;
 
 import lombok.Getter;
@@ -139,12 +140,12 @@ public class BudgetCalculation extends UdoDomainObject2<BudgetCalculation>
     @Action(semantics = SemanticsOf.SAFE)
     @ActionLayout(contributed = Contributed.AS_ASSOCIATION)
     @CollectionLayout(render = RenderType.EAGERLY)
-    public List<LeaseTermForServiceCharge> getLeaseTerms(){
-        List<LeaseTermForServiceCharge> leaseTerms = new ArrayList<>();
+    public List<ServiceChargeTerm> getServiceChargeTerms(){
+        List<ServiceChargeTerm> serviceChargeTerms = new ArrayList<>();
         for (BudgetCalculationLink link : budgetCalculationLinks){
-            leaseTerms.add(link.getLeaseTerm());
+            serviceChargeTerms.add(link.getServiceChargeTerm());
         }
-        return leaseTerms;
+        return serviceChargeTerms;
     }
 
     @Override

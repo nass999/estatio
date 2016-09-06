@@ -12,7 +12,7 @@
     <row>
         <col span="4">
             <ns2:fieldSet name="General" id="general" unreferencedProperties="true">
-                <ns2:property id="leaseTerm"/>
+                <ns2:property id="serviceChargeTerm"/>
                 <ns2:property id="datanucleusVersionLong"/>
                 <ns2:property id="budgetCalculation"/>
                 <ns2:property id="versionSequence"/>

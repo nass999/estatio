@@ -57,13 +57,12 @@ import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.WithIntervalMutable;
 import org.estatio.dom.apptenancy.WithApplicationTenancyProperty;
 import org.estatio.dom.asset.Property;
-import org.estatio.dom.asset.Unit;
 import org.estatio.dom.asset.UnitRepository;
+import org.estatio.dom.budgetassignment.BudgetCalculationLink;
+import org.estatio.dom.budgetassignment.BudgetCalculationLinkRepository;
 import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
 import org.estatio.dom.budgeting.api.BudgetItemCreator;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
-import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationLink;
-import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationLinkRepository;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationRepository;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.dom.budgeting.budgetitem.BudgetItemRepository;
@@ -73,15 +72,9 @@ import org.estatio.dom.budgeting.keytable.KeyTableRepository;
 import org.estatio.dom.budgeting.keytable.KeyValueMethod;
 import org.estatio.dom.budgeting.viewmodels.BudgetOverview;
 import org.estatio.dom.charge.Charge;
-import org.estatio.dom.lease.Lease;
-import org.estatio.dom.lease.LeaseItem;
 import org.estatio.dom.lease.LeaseItemRepository;
-import org.estatio.dom.lease.LeaseItemType;
 import org.estatio.dom.lease.LeaseRepository;
-import org.estatio.dom.lease.LeaseTerm;
-import org.estatio.dom.lease.LeaseTermForServiceCharge;
 import org.estatio.dom.lease.OccupancyRepository;
-import org.estatio.dom.lease.Occupancy;
 import org.estatio.dom.utils.TitleBuilder;
 import org.estatio.dom.valuetypes.LocalDateInterval;
 
@@ -226,6 +219,9 @@ public class Budget extends UdoDomainObject2<Budget>
         return budgetItemRepository.validateNewBudgetItem(this,budgetedValue,charge);
     }
 
+    /*
+    * TODO: revisit after refactoring
+    * */
     @Action(restrictTo = RestrictTo.PROTOTYPING ,semantics = SemanticsOf.NON_IDEMPOTENT_ARE_YOU_SURE)
     public void removeBudget(
             @ParameterLayout(named = "This will delete the budget and all associated data including keytables, generated lease terms and calculations. (You may consider downloading the budget and the keytables beforehand.) Are you sure?")
@@ -236,17 +232,17 @@ public class Budget extends UdoDomainObject2<Budget>
             link.remove();
         }
 
-        /* of all lease items of type service_charge_budgeted delete all lease terms with no calculations*/
-        for (Lease lease : leaseRepository.allLeases()){
-            for (LeaseItem leaseItem : leaseItemRepository.findLeaseItemsByType(lease, LeaseItemType.SERVICE_CHARGE_BUDGETED)){
-                for (LeaseTerm term : leaseItem.getTerms()){
-                    LeaseTermForServiceCharge termForServiceCharge = (LeaseTermForServiceCharge) term;
-                    if (budgetCalculationLinkRepository.findByLeaseTerm(termForServiceCharge).isEmpty()){
-                        termForServiceCharge.remove();
-                    }
-                }
-            }
-        }
+//        /* of all lease items of type service_charge_budgeted delete all lease terms with no calculations*/
+//        for (Lease lease : leaseRepository.allLeases()){
+//            for (LeaseItem leaseItem : leaseItemRepository.findLeaseItemsByType(lease, LeaseItemType.SERVICE_CHARGE_BUDGETED)){
+//                for (LeaseTerm term : leaseItem.getTerms()){
+//                    LeaseTermForServiceCharge termForServiceCharge = (LeaseTermForServiceCharge) term;
+//                    if (budgetCalculationLinkRepository.findByServiceChargeTerm(termForServiceCharge).isEmpty()){
+//                        termForServiceCharge.remove();
+//                    }
+//                }
+//            }
+//        }
 
         remove(this);
     }
@@ -319,15 +315,6 @@ public class Budget extends UdoDomainObject2<Budget>
             }
         }
         return charges;
-    }
-
-    @Programmatic
-    public List<Occupancy> getOccupanciesInBudgetInterval() {
-        List<Occupancy> result = new ArrayList<>();
-        for (Unit unit : unitRepository.findByProperty(getProperty())) {
-            result.addAll(occupancyRepository.occupanciesByUnitAndInterval(unit, getInterval()));
-        }
-        return result;
     }
 
     @Programmatic

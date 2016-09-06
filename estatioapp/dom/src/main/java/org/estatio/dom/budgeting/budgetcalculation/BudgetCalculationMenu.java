@@ -12,6 +12,7 @@ import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.RestrictTo;
 
+import org.estatio.dom.budgetassignment.BudgetAssignmentService;
 import org.estatio.dom.budgeting.budget.Budget;
 import org.estatio.dom.budgeting.budget.BudgetRepository;
 
@@ -30,7 +31,7 @@ public class BudgetCalculationMenu {
         for (Budget budget : budgetRepository.allBudgets()){
             if (budget.getInterval().contains(localDate)) {
                 budgetCalculationRepository.resetAndUpdateOrCreateBudgetCalculations(budget, budgetCalculationService.calculate(budget));
-                budgetCalculationService.assignBudgetCalculationsToLeases(budget);
+                budgetAssignmentService.assignBudgetCalculations(budget);
             }
         }
 
@@ -41,6 +42,9 @@ public class BudgetCalculationMenu {
 
     @Inject
     private BudgetCalculationService budgetCalculationService;
+
+    @Inject
+    private BudgetAssignmentService budgetAssignmentService;
 
     @Inject
     private BudgetRepository budgetRepository;

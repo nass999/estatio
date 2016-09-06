@@ -15,12 +15,14 @@
  * under the License.
  */
 
-package org.estatio.dom.budgeting.budgetcalculation;
+package org.estatio.dom.budgetassignment;
 
 import org.junit.Test;
 
 import org.estatio.dom.AbstractBeanPropertiesTest;
-import org.estatio.dom.lease.LeaseTermForServiceCharge;
+import org.estatio.dom.budgetassignment.BudgetCalculationLink;
+import org.estatio.dom.budgetassignment.ServiceChargeTerm;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 
 public class BudgetCalculationLinkTest {
 
@@ -31,7 +33,7 @@ public class BudgetCalculationLinkTest {
             final BudgetCalculationLink pojo = new BudgetCalculationLink();
             newPojoTester()
                     .withFixture(pojos(BudgetCalculation.class, BudgetCalculation.class))
-                    .withFixture(pojos(LeaseTermForServiceCharge.class, LeaseTermForServiceCharge.class))
+                    .withFixture(pojos(ServiceChargeTerm.class, ServiceChargeTerm.class))
                     .exercise(pojo);
         }
 

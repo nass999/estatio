@@ -29,6 +29,7 @@ import org.apache.isis.applib.annotation.SemanticsOf;
 import org.estatio.dom.UdoDomainRepositoryAndFactory;
 import org.estatio.dom.charge.Charge;
 import org.estatio.dom.lease.Occupancy;
+import org.estatio.dom.valuetypes.LocalDateInterval;
 
 @DomainService(repositoryFor = ServiceChargeTerm.class, nature = NatureOfService.DOMAIN)
 @DomainServiceLayout()
@@ -52,6 +53,14 @@ public class ServiceChargeTermRepository extends UdoDomainRepositoryAndFactory<S
         persistIfNotAlready(serviceChargeTerm);
 
         return serviceChargeTerm;
+    }
+
+    @Action(semantics = SemanticsOf.IDEMPOTENT)
+    public ServiceChargeTerm findOrCreateServiceChargeTerm(
+            final Occupancy occupancy,
+            final Charge charge,
+            final LocalDateInterval budgetYear) {
+        return findOrCreateServiceChargeTerm(occupancy, charge, budgetYear.asInterval().getStart().getYear());
     }
 
     @Action(semantics = SemanticsOf.IDEMPOTENT)

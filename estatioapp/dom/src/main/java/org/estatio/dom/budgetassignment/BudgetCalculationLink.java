@@ -16,7 +16,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.estatio.dom.budgeting.budgetcalculation;
+package org.estatio.dom.budgetassignment;
 
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.DatastoreIdentity;
@@ -36,14 +36,13 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 
 import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.apptenancy.WithApplicationTenancyProperty;
-import org.estatio.dom.lease.LeaseTermForServiceCharge;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @PersistenceCapable(
         identityType = IdentityType.DATASTORE
-//      ,schema = "budget"
 )
 @DatastoreIdentity(
         strategy = IdGeneratorStrategy.NATIVE,
@@ -53,22 +52,22 @@ import lombok.Setter;
         column = "version")
 @javax.jdo.annotations.Queries({
         @Query(
-                name = "findByLeaseTerm", language = "JDOQL",
+                name = "findByServiceChargeTerm", language = "JDOQL",
                 value = "SELECT " +
                         "FROM org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationLink " +
-                        "WHERE leaseTerm == :leaseTerm"),
+                        "WHERE serviceChargeTerm == :serviceChargeTerm"),
         @Query(
-                name = "findByBudgetCalculationAndLeaseTerm", language = "JDOQL",
+                name = "findByBudgetCalculationAndServiceChargeTerm", language = "JDOQL",
                 value = "SELECT " +
                         "FROM org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationLink " +
-                        "WHERE leaseTerm == :leaseTerm " +
+                        "WHERE serviceChargeTerm == :serviceChargeTerm " +
                         "&& budgetCalculation == :budgetCalculation")
 })
 @DomainObject()
 public class BudgetCalculationLink extends UdoDomainObject2<BudgetCalculationLink> implements WithApplicationTenancyProperty {
 
     public BudgetCalculationLink() {
-        super("budgetCalculation, leaseTerm");
+        super("budgetCalculation, serviceChargeTerm");
     }
 
     public String title(){
@@ -81,9 +80,9 @@ public class BudgetCalculationLink extends UdoDomainObject2<BudgetCalculationLin
     private BudgetCalculation budgetCalculation;
 
     @Getter @Setter
-    @Column(allowsNull = "false", name="LeaseTermId")
+    @Column(allowsNull = "false", name="serviceChargeTermId")
     @PropertyLayout(hidden = Where.REFERENCES_PARENT)
-    private LeaseTermForServiceCharge leaseTerm;
+    private ServiceChargeTerm serviceChargeTerm;
 
     @Override
     @PropertyLayout(hidden = Where.EVERYWHERE)

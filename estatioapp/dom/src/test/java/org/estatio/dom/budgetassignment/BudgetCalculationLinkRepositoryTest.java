@@ -15,7 +15,7 @@
  * under the License.
  */
 
-package org.estatio.dom.budgeting.budgetcalculation;
+package org.estatio.dom.budgetassignment;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import org.apache.isis.applib.query.Query;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 import org.estatio.dom.FinderInteraction;
-import org.estatio.dom.lease.LeaseTermForServiceCharge;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,37 +73,37 @@ public class BudgetCalculationLinkRepositoryTest {
         };
     }
 
-    public static class FindByLeaseTerm extends BudgetCalculationLinkRepositoryTest {
+    public static class FindByServiceChargeTerm extends BudgetCalculationLinkRepositoryTest {
 
         @Test
         public void happyCase() {
 
-            LeaseTermForServiceCharge leaseTerm = new LeaseTermForServiceCharge();
-            budgetCalculationLinkRepository.findByLeaseTerm(leaseTerm);
+            ServiceChargeTerm serviceChargeTerm = new ServiceChargeTerm();
+            budgetCalculationLinkRepository.findByServiceChargeTerm(serviceChargeTerm);
 
             assertThat(finderInteraction.getFinderMethod()).isEqualTo(FinderInteraction.FinderMethod.ALL_MATCHES);
             assertThat(finderInteraction.getResultType()).isEqualTo(BudgetCalculationLink.class);
-            assertThat(finderInteraction.getQueryName()).isEqualTo("findByLeaseTerm");
-            assertThat(finderInteraction.getArgumentsByParameterName().get("leaseTerm")).isEqualTo((Object) leaseTerm);
+            assertThat(finderInteraction.getQueryName()).isEqualTo("findByServiceChargeTerm");
+            assertThat(finderInteraction.getArgumentsByParameterName().get("serviceChargeTerm")).isEqualTo((Object) serviceChargeTerm);
             assertThat(finderInteraction.getArgumentsByParameterName()).hasSize(1);
         }
 
     }
 
-    public static class FindByBudgetCalculationAndLeaseTerm extends BudgetCalculationLinkRepositoryTest {
+    public static class FindByBudgetCalculationAndServiceChargeTerm extends BudgetCalculationLinkRepositoryTest {
 
         @Test
         public void happyCase() {
 
             BudgetCalculation budgetCalculation = new BudgetCalculation();
-            LeaseTermForServiceCharge leaseTerm = new LeaseTermForServiceCharge();
-            budgetCalculationLinkRepository.findByBudgetCalculationAndLeaseTerm(budgetCalculation, leaseTerm);
+            ServiceChargeTerm serviceChargeTerm = new ServiceChargeTerm();
+            budgetCalculationLinkRepository.findByBudgetCalculationAndServiceChargeTerm(budgetCalculation, serviceChargeTerm);
 
             assertThat(finderInteraction.getFinderMethod()).isEqualTo(FinderInteraction.FinderMethod.UNIQUE_MATCH);
             assertThat(finderInteraction.getResultType()).isEqualTo(BudgetCalculationLink.class);
-            assertThat(finderInteraction.getQueryName()).isEqualTo("findByBudgetCalculationAndLeaseTerm");
+            assertThat(finderInteraction.getQueryName()).isEqualTo("findByBudgetCalculationAndServiceChargeTerm");
             assertThat(finderInteraction.getArgumentsByParameterName().get("budgetCalculation")).isEqualTo((Object) budgetCalculation);
-            assertThat(finderInteraction.getArgumentsByParameterName().get("leaseTerm")).isEqualTo((Object) leaseTerm);
+            assertThat(finderInteraction.getArgumentsByParameterName().get("serviceChargeTerm")).isEqualTo((Object) serviceChargeTerm);
             assertThat(finderInteraction.getArgumentsByParameterName()).hasSize(2);
         }
 
@@ -125,7 +125,7 @@ public class BudgetCalculationLinkRepositoryTest {
 
             //given
             BudgetCalculation budgetCalculation = new BudgetCalculation();
-            LeaseTermForServiceCharge leaseTermForServiceCharge = new LeaseTermForServiceCharge();
+            ServiceChargeTerm serviceChargeTerm = new ServiceChargeTerm();
 
             BudgetCalculationLink budgetCalculationLink = new BudgetCalculationLink();
 
@@ -140,11 +140,11 @@ public class BudgetCalculationLinkRepositoryTest {
             });
 
             //when
-            BudgetCalculationLink newBudgetCalculationlink = budgetCalculationLinkRepository.createBudgetCalculationLink(budgetCalculation, leaseTermForServiceCharge);
+            BudgetCalculationLink newBudgetCalculationlink = budgetCalculationLinkRepository.createBudgetCalculationLink(budgetCalculation, serviceChargeTerm);
 
             //then
             assertThat(newBudgetCalculationlink.getBudgetCalculation()).isEqualTo(budgetCalculation);
-            assertThat(newBudgetCalculationlink.getLeaseTerm()).isEqualTo(leaseTermForServiceCharge);
+            assertThat(newBudgetCalculationlink.getServiceChargeTerm()).isEqualTo(serviceChargeTerm);
 
         }
     }

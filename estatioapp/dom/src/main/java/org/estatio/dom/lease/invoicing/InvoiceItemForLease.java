@@ -56,7 +56,7 @@ import lombok.Setter;
 // no @DatastoreIdentity nor @Version, since inherited from supertype
 @javax.jdo.annotations.Queries({
         @javax.jdo.annotations.Query(
-                name = "findByLeaseTerm", language = "JDOQL",
+                name = "findByServiceChargeTerm", language = "JDOQL",
                 value = "SELECT " +
                         "FROM org.estatio.dom.lease.invoicing.InvoiceItemForLease " +
                         "WHERE leaseTerm == :leaseTerm "),

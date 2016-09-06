@@ -90,7 +90,7 @@ public class InvoiceItemForLeaseRepository extends UdoDomainRepositoryAndFactory
 
     @Programmatic
     public List<InvoiceItemForLease> findByLeaseTerm(final LeaseTerm leaseTerm){
-        return allMatches("findByLeaseTerm", "leaseTerm", leaseTerm);
+        return allMatches("findByServiceChargeTerm", "leaseTerm", leaseTerm);
     }
 
 
