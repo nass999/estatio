@@ -36,7 +36,7 @@ public class BudgetAssignmentService {
 
                     ServiceChargeTerm serviceChargeTerm = serviceChargeTermRepository.findOrCreateServiceChargeTerm(occupancy, invoiceCharge, budget.getBudgetYear());
                     for (BudgetCalculation budgetCalculation : budgetCalculationsForOccupancy){
-                        budgetCalculationLinkRepository.findOrCreateBudgetCalculationLink(budgetCalculation, serviceChargeTerm);
+                        serviceChargeTerm.findOrCreateBudgetCalculationLink(budgetCalculation);
                     }
                     serviceChargeTerm.calculate();
 

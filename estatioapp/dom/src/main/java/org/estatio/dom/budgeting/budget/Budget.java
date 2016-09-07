@@ -72,8 +72,6 @@ import org.estatio.dom.budgeting.keytable.KeyTableRepository;
 import org.estatio.dom.budgeting.keytable.KeyValueMethod;
 import org.estatio.dom.budgeting.viewmodels.BudgetOverview;
 import org.estatio.dom.charge.Charge;
-import org.estatio.dom.lease.LeaseItemRepository;
-import org.estatio.dom.lease.LeaseRepository;
 import org.estatio.dom.lease.OccupancyRepository;
 import org.estatio.dom.utils.TitleBuilder;
 import org.estatio.dom.valuetypes.LocalDateInterval;
@@ -224,25 +222,17 @@ public class Budget extends UdoDomainObject2<Budget>
     * */
     @Action(restrictTo = RestrictTo.PROTOTYPING ,semantics = SemanticsOf.NON_IDEMPOTENT_ARE_YOU_SURE)
     public void removeBudget(
-            @ParameterLayout(named = "This will delete the budget and all associated data including keytables, generated lease terms and calculations. (You may consider downloading the budget and the keytables beforehand.) Are you sure?")
+            @ParameterLayout(named = "This will delete the budget and all associated data including keytables, calculations and generated service charge terms. (You may consider downloading the budget and the keytables beforehand.) Are you sure?")
             final boolean areYouSure
     ){
-        /* delete budget calculation links*/
+
+        /* delete service charge terms */
+
+
+        /* delete budget calculation links */
         for (BudgetCalculationLink link : this.getBudgetCalculationLinks()){
             link.remove();
         }
-
-//        /* of all lease items of type service_charge_budgeted delete all lease terms with no calculations*/
-//        for (Lease lease : leaseRepository.allLeases()){
-//            for (LeaseItem leaseItem : leaseItemRepository.findLeaseItemsByType(lease, LeaseItemType.SERVICE_CHARGE_BUDGETED)){
-//                for (LeaseTerm term : leaseItem.getTerms()){
-//                    LeaseTermForServiceCharge termForServiceCharge = (LeaseTermForServiceCharge) term;
-//                    if (budgetCalculationLinkRepository.findByServiceChargeTerm(termForServiceCharge).isEmpty()){
-//                        termForServiceCharge.remove();
-//                    }
-//                }
-//            }
-//        }
 
         remove(this);
     }
@@ -360,12 +350,6 @@ public class Budget extends UdoDomainObject2<Budget>
 
     @Inject
     private KeyTableRepository keyTableRepository;
-
-    @Inject
-    private LeaseRepository leaseRepository;
-
-    @Inject
-    private LeaseItemRepository leaseItemRepository;
 
     @Inject
     private BudgetCalculationLinkRepository budgetCalculationLinkRepository;
