@@ -35,7 +35,7 @@ import org.estatio.dom.lease.Occupancy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ServiceChargeRepositoryTest {
+public class ServiceChargeTermRepositoryTest {
 
     FinderInteraction finderInteraction;
 
@@ -71,7 +71,7 @@ public class ServiceChargeRepositoryTest {
         };
     }
 
-    public static class FindByOccupancy extends ServiceChargeRepositoryTest {
+    public static class FindByOccupancy extends ServiceChargeTermRepositoryTest {
 
         @Test
         public void happyCase() {
@@ -88,7 +88,7 @@ public class ServiceChargeRepositoryTest {
 
     }
 
-    public static class Findunique extends ServiceChargeRepositoryTest {
+    public static class Findunique extends ServiceChargeTermRepositoryTest {
 
         @Test
         public void happyCase() {
@@ -110,7 +110,7 @@ public class ServiceChargeRepositoryTest {
     }
 
 
-    public static class NewServiceChargeTerm extends ServiceChargeRepositoryTest {
+    public static class NewServiceChargeTerm extends ServiceChargeTermRepositoryTest {
 
         @Rule
         public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);

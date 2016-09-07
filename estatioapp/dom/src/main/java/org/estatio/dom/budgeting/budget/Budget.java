@@ -305,7 +305,7 @@ public class Budget extends UdoDomainObject2<Budget>
     }
 
     @Programmatic
-    public List<Charge> getTargetCharges() {
+    public List<Charge> getInvoiceCharges() {
         List<Charge> charges = new ArrayList<>();
         for (BudgetItem budgetItem : getItems()) {
             for (BudgetItemAllocation allocation : budgetItem.getBudgetItemAllocations()) {

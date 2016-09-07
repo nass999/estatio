@@ -23,9 +23,9 @@ public class BudgetAssignmentService {
 
         List<BudgetCalculationLink> result = new ArrayList<>();
 
-        for (Charge targetCharge : budget.getTargetCharges()) {
+        for (Charge invoiceCharge : budget.getInvoiceCharges()) {
 
-            List<BudgetCalculation> calculationsForCharge = budgetCalculationRepository.findByBudgetAndCharge(budget, targetCharge);
+            List<BudgetCalculation> calculationsForCharge = budgetCalculationRepository.findByBudgetAndCharge(budget, invoiceCharge);
 
             for (Occupancy occupancy : occupancyRepository.occupanciesByPropertyAndInterval(budget.getProperty(), budget.getInterval())) {
 
@@ -34,7 +34,7 @@ public class BudgetAssignmentService {
                 // find or create service charge term and assign calculations
                 if (budgetCalculationsForOccupancy.size()>0){
 
-                    ServiceChargeTerm serviceChargeTerm = serviceChargeTermRepository.findOrCreateServiceChargeTerm(occupancy, targetCharge, budget.getBudgetYear());
+                    ServiceChargeTerm serviceChargeTerm = serviceChargeTermRepository.findOrCreateServiceChargeTerm(occupancy, invoiceCharge, budget.getBudgetYear());
                     for (BudgetCalculation budgetCalculation : budgetCalculationsForOccupancy){
                         budgetCalculationLinkRepository.findOrCreateBudgetCalculationLink(budgetCalculation, serviceChargeTerm);
                     }

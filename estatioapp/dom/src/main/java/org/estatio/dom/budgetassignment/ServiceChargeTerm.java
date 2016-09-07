@@ -1,6 +1,7 @@
 package org.estatio.dom.budgetassignment;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 import javax.inject.Inject;
 import javax.jdo.annotations.Column;
@@ -116,23 +117,37 @@ public class ServiceChargeTerm extends UdoDomainObject2<ServiceChargeTerm> imple
         BigDecimal calculatedAuditedValue = BigDecimal.ZERO;
         for (BudgetCalculationLink link : budgetCalculationLinkRepository.findByServiceChargeTerm(this)){
             BudgetCalculation calculation = link.getBudgetCalculation();
+
             switch (calculation.getCalculationType()){
 
             case BUDGETED:
-                calculatedBudgetedValue = calculatedBudgetedValue.add(calculation.getValue());
+                calculatedBudgetedValue = calculatedBudgetedValue.add(effectiveValue(calculation));
                 break;
 
             case AUDITED:
-                calculatedAuditedValue = calculatedAuditedValue.add(calculation.getValue());
+                calculatedAuditedValue = calculatedAuditedValue.add(effectiveValue(calculation));
                 break;
 
             }
         }
-        setCalculatedBudgetedValue(calculatedBudgetedValue);
-        setCalculatedAuditedValue(calculatedAuditedValue);
+        setCalculatedBudgetedValue(calculatedBudgetedValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+        setCalculatedAuditedValue(calculatedAuditedValue.setScale(2, BigDecimal.ROUND_HALF_UP));
+    }
+
+    private BigDecimal effectiveValue(final BudgetCalculation calculation){
+        return calculation.getValue().multiply(annualFactor(calculation));
+    }
+
+    BigDecimal annualFactor(final BudgetCalculation calculation){
+
+        BigDecimal numberOfDaysInYear = BigDecimal.valueOf(calculation.getBudgetItemAllocation().getBudgetItem().getBudget().getBudgetYear().days());
+        BigDecimal numberOfDaysInBudgetInterval = BigDecimal.valueOf(calculation.getBudgetItemAllocation().getBudgetItem().getBudget().getInterval().days());
+
+        return numberOfDaysInBudgetInterval.divide(numberOfDaysInYear, MathContext.DECIMAL64);
+
     }
 
     @Inject
-    private BudgetCalculationLinkRepository budgetCalculationLinkRepository;
+    BudgetCalculationLinkRepository budgetCalculationLinkRepository;
 
 }

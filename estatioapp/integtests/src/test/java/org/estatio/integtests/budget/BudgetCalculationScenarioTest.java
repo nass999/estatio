@@ -82,10 +82,10 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
         public void CalculateAndAssign() throws Exception {
             calculation();
             assignBudget();
-            assignToLeasesWhenUpdated();
-            assignToLeasesWhenAudited();
-            assignToLeasesWhenAuditedAndUpdated();
-            assignToLeasesWhenAuditedAndUpdatedWithEmptyAuditedValueOnBudgetItem();
+            assignBudgetWhenUpdated();
+            assignBudgetWhenAudited();
+            assignbudgetWhenAuditedAndUpdated();
+            assignBudgetWhenAuditedAndUpdatedWithEmptyAuditedValueOnBudgetItem();
         }
 
         public void calculation() throws Exception {
@@ -139,7 +139,7 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
 
             Assertions.assertThat(
                     createdTerm.getCalculatedAuditedValue())
-                    .isEqualTo(BigDecimal.ZERO);
+                    .isEqualTo(new BigDecimal("0.00"));
 
             Assertions.assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
             Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
@@ -147,7 +147,7 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
 
         }
 
-        public void assignToLeasesWhenUpdated() throws Exception {
+        public void assignBudgetWhenUpdated() throws Exception {
 
             // given
             BudgetItem updatedItem = budget.getItems().first();
@@ -170,7 +170,7 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
             Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
         }
 
-        public void assignToLeasesWhenAudited() throws Exception {
+        public void assignBudgetWhenAudited() throws Exception {
 
             // given
             BudgetItem auditedItem = budget.getItems().last();
@@ -200,7 +200,7 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
             Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(5);
         }
 
-        public void assignToLeasesWhenAuditedAndUpdated() throws Exception {
+        public void assignbudgetWhenAuditedAndUpdated() throws Exception {
 
             // given
             BudgetItem auditedAndUpdatedItem = budget.getItems().last();
@@ -227,7 +227,7 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
             Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(5);
         }
 
-        public void assignToLeasesWhenAuditedAndUpdatedWithEmptyAuditedValueOnBudgetItem() throws Exception {
+        public void assignBudgetWhenAuditedAndUpdatedWithEmptyAuditedValueOnBudgetItem() throws Exception {
 
             // given
             BudgetItem auditedAndUpdatedItem = budget.getItems().last();
