@@ -107,10 +107,10 @@ public class ServiceChargeTerm extends UdoDomainObject2<ServiceChargeTerm> imple
         return this;
     }
 
-    @CollectionLayout(render = RenderType.EAGERLY)
+    @CollectionLayout(render = RenderType.EAGERLY, named = "budgetCalculations")
     @Persistent(mappedBy = "serviceChargeTerm", dependentElement = "true")
     @Getter @Setter
-    private SortedSet<BudgetCalculationLink> budgetCalculations = new TreeSet<>();
+    private SortedSet<BudgetCalculationLink> budgetCalculationLinks = new TreeSet<>();
 
     @Action(semantics = SemanticsOf.SAFE)
     public BigDecimal getEffectiveBudgetedValue(){

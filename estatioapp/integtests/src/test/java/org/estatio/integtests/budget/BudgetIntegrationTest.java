@@ -14,6 +14,7 @@ import org.apache.isis.applib.services.wrapper.HiddenException;
 
 import org.estatio.dom.asset.Property;
 import org.estatio.dom.asset.PropertyRepository;
+import org.estatio.dom.budgetassignment.ServiceChargeTermRepository;
 import org.estatio.dom.budgeting.budget.Budget;
 import org.estatio.dom.budgeting.budget.BudgetRepository;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationContributions;
@@ -23,6 +24,8 @@ import org.estatio.dom.budgeting.keytable.KeyTableRepository;
 import org.estatio.dom.lease.LeaseItem;
 import org.estatio.dom.lease.LeaseItemType;
 import org.estatio.dom.lease.LeaseRepository;
+import org.estatio.dom.lease.Occupancy;
+import org.estatio.dom.lease.OccupancyRepository;
 import org.estatio.fixture.EstatioBaseLineFixture;
 import org.estatio.fixture.asset.PropertyForOxfGb;
 import org.estatio.fixture.budget.BudgetItemAllocationsForOxf;
@@ -54,7 +57,13 @@ public class BudgetIntegrationTest extends EstatioIntegrationTest {
     BudgetCalculationContributions budgetCalculationContributions;
 
     @Inject
+    ServiceChargeTermRepository serviceChargeTermRepository;
+
+    @Inject
     LeaseRepository leaseRepository;
+
+    @Inject
+    OccupancyRepository occupancyRepository;
 
     @Before
     public void setupData() {
@@ -74,6 +83,7 @@ public class BudgetIntegrationTest extends EstatioIntegrationTest {
         List<Budget> budgetsForOxf;
         Budget budget2015;
         LeaseItem topmodelBudgetServiceChargeItem;
+        Occupancy topmodelOccupancy;
 
         @Rule
         public ExpectedException expectedException = ExpectedException.none();
@@ -89,6 +99,7 @@ public class BudgetIntegrationTest extends EstatioIntegrationTest {
             budgetCalculationContributions.assignCalculationsToLeases(budget2015);
 
             topmodelBudgetServiceChargeItem = leaseRepository.findLeaseByReference(LeaseForOxfTopModel001Gb.REF).findFirstItemOfType(LeaseItemType.SERVICE_CHARGE_BUDGETED);
+            topmodelOccupancy = occupancyRepository.findByLease(topmodelBudgetServiceChargeItem.getLease()).get(0);
 
         }
 
@@ -98,8 +109,8 @@ public class BudgetIntegrationTest extends EstatioIntegrationTest {
             assertThat(budgetsForOxf.size()).isEqualTo(2);
             assertThat(budgetCalculationRepository.allBudgetCalculations().size()).isEqualTo(75);
             assertThat(budget2015.getKeyTables().size()).isEqualTo(2);
-            assertThat(budget2015.getBudgetCalculationLinks().size()).isEqualTo(3);
-//            assertThat(topmodelBudgetServiceChargeItem.getTerms().size()).isEqualTo(1);
+            assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
+            assertThat(serviceChargeTermRepository.findByOccupancy(topmodelOccupancy).size()).isEqualTo(1);
 
             // when
             budget2015.removeBudget(true);
@@ -110,6 +121,7 @@ public class BudgetIntegrationTest extends EstatioIntegrationTest {
             assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(0);
             assertThat(topmodelBudgetServiceChargeItem.getTerms().size()).isEqualTo(0);
             assertThat(keyTableRepository.allKeyTables().size()).isEqualTo(0);
+            assertThat(serviceChargeTermRepository.findByOccupancy(topmodelOccupancy).size()).isEqualTo(0);
         }
 
         @Test

@@ -26,7 +26,7 @@ public class BudgetCalculationRepository extends UdoDomainRepositoryAndFactory<B
 
         for (BudgetCalculationResult result : budgetCalculationResults){
             if (result.getBudgetItemAllocation().getBudgetItem().getBudget() != budget){
-                throw new IllegalArgumentException("All budgetCalculations should have same budget");
+                throw new IllegalArgumentException("All budgetCalculationLinks should have same budget");
             }
         }
 

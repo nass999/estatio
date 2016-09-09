@@ -52,14 +52,19 @@ import lombok.Setter;
         column = "version")
 @javax.jdo.annotations.Queries({
         @Query(
+                name = "findByBudgetCalculation", language = "JDOQL",
+                value = "SELECT " +
+                        "FROM org.estatio.dom.budgetassignment.BudgetCalculationLink " +
+                        "WHERE budgetCalculation == :budgetCalculation"),
+        @Query(
                 name = "findByServiceChargeTerm", language = "JDOQL",
                 value = "SELECT " +
-                        "FROM org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationLink " +
+                        "FROM org.estatio.dom.budgetassignment.BudgetCalculationLink " +
                         "WHERE serviceChargeTerm == :serviceChargeTerm"),
         @Query(
                 name = "findByBudgetCalculationAndServiceChargeTerm", language = "JDOQL",
                 value = "SELECT " +
-                        "FROM org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationLink " +
+                        "FROM org.estatio.dom.budgetassignment.BudgetCalculationLink " +
                         "WHERE serviceChargeTerm == :serviceChargeTerm " +
                         "&& budgetCalculation == :budgetCalculation")
 })

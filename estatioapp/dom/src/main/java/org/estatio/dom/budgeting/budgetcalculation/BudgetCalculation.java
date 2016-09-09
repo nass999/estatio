@@ -20,31 +20,20 @@ package org.estatio.dom.budgeting.budgetcalculation;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.DatastoreIdentity;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
 
-import org.apache.isis.applib.annotation.Action;
-import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.CollectionLayout;
-import org.apache.isis.applib.annotation.Contributed;
 import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.PropertyLayout;
-import org.apache.isis.applib.annotation.RenderType;
-import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.services.timestamp.Timestampable;
 
@@ -52,8 +41,6 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 
 import org.estatio.dom.UdoDomainObject2;
 import org.estatio.dom.apptenancy.WithApplicationTenancyProperty;
-import org.estatio.dom.budgetassignment.BudgetCalculationLink;
-import org.estatio.dom.budgetassignment.ServiceChargeTerm;
 import org.estatio.dom.budgeting.Distributable;
 import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
 import org.estatio.dom.budgeting.keyitem.KeyItem;
@@ -131,22 +118,6 @@ public class BudgetCalculation extends UdoDomainObject2<BudgetCalculation>
     @Getter @Setter
     @Column(allowsNull = "false")
     private CalculationType calculationType;
-
-    @Getter @Setter
-    @CollectionLayout(hidden = Where.EVERYWHERE)
-    @Persistent(mappedBy = "budgetCalculation", dependentElement = "true")
-    private SortedSet<BudgetCalculationLink> budgetCalculationLinks = new TreeSet<>();
-
-    @Action(semantics = SemanticsOf.SAFE)
-    @ActionLayout(contributed = Contributed.AS_ASSOCIATION)
-    @CollectionLayout(render = RenderType.EAGERLY)
-    public List<ServiceChargeTerm> getServiceChargeTerms(){
-        List<ServiceChargeTerm> serviceChargeTerms = new ArrayList<>();
-        for (BudgetCalculationLink link : budgetCalculationLinks){
-            serviceChargeTerms.add(link.getServiceChargeTerm());
-        }
-        return serviceChargeTerms;
-    }
 
     @Override
     @PropertyLayout(hidden = Where.EVERYWHERE)

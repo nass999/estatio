@@ -59,10 +59,10 @@ import org.estatio.dom.apptenancy.WithApplicationTenancyProperty;
 import org.estatio.dom.asset.Property;
 import org.estatio.dom.asset.UnitRepository;
 import org.estatio.dom.budgetassignment.BudgetCalculationLink;
-import org.estatio.dom.budgetassignment.BudgetCalculationLinkRepository;
+import org.estatio.dom.budgetassignment.ServiceChargeTerm;
+import org.estatio.dom.budgetassignment.ServiceChargeTermRepository;
 import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
 import org.estatio.dom.budgeting.api.BudgetItemCreator;
-import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationRepository;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.dom.budgeting.budgetitem.BudgetItemRepository;
@@ -72,6 +72,7 @@ import org.estatio.dom.budgeting.keytable.KeyTableRepository;
 import org.estatio.dom.budgeting.keytable.KeyValueMethod;
 import org.estatio.dom.budgeting.viewmodels.BudgetOverview;
 import org.estatio.dom.charge.Charge;
+import org.estatio.dom.lease.Occupancy;
 import org.estatio.dom.lease.OccupancyRepository;
 import org.estatio.dom.utils.TitleBuilder;
 import org.estatio.dom.valuetypes.LocalDateInterval;
@@ -226,12 +227,25 @@ public class Budget extends UdoDomainObject2<Budget>
             final boolean areYouSure
     ){
 
-        /* delete service charge terms */
-
-
-        /* delete budget calculation links */
-        for (BudgetCalculationLink link : this.getBudgetCalculationLinks()){
-            link.remove();
+        /* delete calculation links and service charge terms if needed */
+        for (Occupancy occupancy : occupancyRepository.occupanciesByPropertyAndInterval(getProperty(),getInterval())) {
+            for (ServiceChargeTerm term : serviceChargeTermRepository.findByOccupancy(occupancy)){
+                if (term.getBudgetYear()==getBudgetYear().startDate().getYear()){
+                    for (BudgetCalculationLink link : term.getBudgetCalculationLinks()){
+                        if (link.getBudgetCalculation()
+                                .getBudgetItemAllocation()
+                                .getBudgetItem()
+                                .getBudget().equals(this)){
+                            getContainer().remove(link);
+                            getContainer().flush();
+                        }
+                    }
+                    if (term.getBudgetCalculationLinks().size()==0){
+                        getContainer().remove(term);
+                        getContainer().flush();
+                    }
+                }
+            }
         }
 
         remove(this);
@@ -307,15 +321,6 @@ public class Budget extends UdoDomainObject2<Budget>
         return charges;
     }
 
-    @Programmatic
-    public List<BudgetCalculationLink> getBudgetCalculationLinks() {
-        List<BudgetCalculationLink> result = new ArrayList<>();
-        for (BudgetCalculation calculation : budgetCalculationRepository.findByBudget(this)) {
-            result.addAll(calculation.getBudgetCalculationLinks());
-        }
-        return result;
-    }
-
     @Override
     @Programmatic
     public BudgetItem findOrCreateBudgetItem(
@@ -352,6 +357,6 @@ public class Budget extends UdoDomainObject2<Budget>
     private KeyTableRepository keyTableRepository;
 
     @Inject
-    private BudgetCalculationLinkRepository budgetCalculationLinkRepository;
+    private ServiceChargeTermRepository serviceChargeTermRepository;
 
 }

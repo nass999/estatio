@@ -73,6 +73,23 @@ public class BudgetCalculationLinkRepositoryTest {
         };
     }
 
+    public static class FindByBudgetCalculation extends BudgetCalculationLinkRepositoryTest {
+
+        @Test
+        public void happyCase() {
+
+            BudgetCalculation budgetCalculation = new BudgetCalculation();
+            budgetCalculationLinkRepository.findByBudgetCalculation(budgetCalculation);
+
+            assertThat(finderInteraction.getFinderMethod()).isEqualTo(FinderInteraction.FinderMethod.ALL_MATCHES);
+            assertThat(finderInteraction.getResultType()).isEqualTo(BudgetCalculationLink.class);
+            assertThat(finderInteraction.getQueryName()).isEqualTo("findByBudgetCalculation");
+            assertThat(finderInteraction.getArgumentsByParameterName().get("budgetCalculation")).isEqualTo((Object) budgetCalculation);
+            assertThat(finderInteraction.getArgumentsByParameterName()).hasSize(1);
+        }
+
+    }
+
     public static class FindByServiceChargeTerm extends BudgetCalculationLinkRepositoryTest {
 
         @Test

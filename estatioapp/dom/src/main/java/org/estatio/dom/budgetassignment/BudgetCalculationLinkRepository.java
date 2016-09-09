@@ -43,13 +43,16 @@ public class BudgetCalculationLinkRepository extends UdoDomainRepositoryAndFacto
         return allInstances();
     }
 
-    public List<BudgetCalculationLink> findByServiceChargeTerm(final ServiceChargeTerm serviceChargeTerm) {
-        return allMatches("findByServiceChargeTerm", "serviceChargeTerm", serviceChargeTerm);
-    }
-
     public BudgetCalculationLink findByBudgetCalculationAndServiceChargeTerm(final BudgetCalculation budgetCalculation, final ServiceChargeTerm serviceChargeTerm) {
         return uniqueMatch("findByBudgetCalculationAndServiceChargeTerm", "budgetCalculation", budgetCalculation, "serviceChargeTerm", serviceChargeTerm);
     }
 
+    public List<BudgetCalculationLink> findByBudgetCalculation(final BudgetCalculation budgetCalculation) {
+        return allMatches("findByBudgetCalculation", "budgetCalculation", budgetCalculation);
+    }
+
+    public List<BudgetCalculationLink> findByServiceChargeTerm(final ServiceChargeTerm serviceChargeTerm) {
+        return allMatches("findByServiceChargeTerm", "serviceChargeTerm", serviceChargeTerm);
+    }
 
 }
