@@ -61,11 +61,12 @@ import lombok.Setter;
         column = "version")
 @javax.jdo.annotations.Queries({
         @Query(
-                name = "findByBudgetItemAllocationAndKeyItemAndCalculationType", language = "JDOQL",
+                name = "findByBudgetItemAllocationAndKeyItemAndStatusAndCalculationType", language = "JDOQL",
                 value = "SELECT " +
                         "FROM org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation " +
                         "WHERE budgetItemAllocation == :budgetItemAllocation " +
                         "&& keyItem == :keyItem " +
+                        "&& status == :status " +
                         "&& calculationType == :calculationType"),
         @Query(
                 name = "findByBudgetItemAllocationAndCalculationType", language = "JDOQL",
@@ -74,12 +75,24 @@ import lombok.Setter;
                         "WHERE budgetItemAllocation == :budgetItemAllocation " +
                         "&& calculationType == :calculationType"),
         @Query(
+                name = "findByBudgetItemAllocationAndStatus", language = "JDOQL",
+                value = "SELECT " +
+                        "FROM org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation " +
+                        "WHERE budgetItemAllocation == :budgetItemAllocation " +
+                        "&& status == :status"),
+        @Query(
+                name = "findByBudgetItemAllocationAndStatusAndCalculationType", language = "JDOQL",
+                value = "SELECT " +
+                        "FROM org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation " +
+                        "WHERE budgetItemAllocation == :budgetItemAllocation " +
+                        "&& status == :status && calculationType == :calculationType"),
+        @Query(
                 name = "findByBudgetItemAllocation", language = "JDOQL",
                 value = "SELECT " +
                         "FROM org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation " +
                         "WHERE budgetItemAllocation == :budgetItemAllocation")
 })
-@Unique(name = "BudgetCalculation_budgetItemAllocation_keyItem_calculationType_UNQ", members = {"budgetItemAllocation", "keyItem", "calculationType"})
+@Unique(name = "BudgetCalculation_budgetItemAllocation_keyItem_calculationType_status_UNQ", members = {"budgetItemAllocation", "keyItem", "calculationType", "status"})
 @DomainObject()
 public class BudgetCalculation extends UdoDomainObject2<BudgetCalculation>
         implements Distributable, WithApplicationTenancyProperty, Timestampable {
@@ -117,7 +130,11 @@ public class BudgetCalculation extends UdoDomainObject2<BudgetCalculation>
 
     @Getter @Setter
     @Column(allowsNull = "false")
-    private CalculationType calculationType;
+    private BudgetCalculationType calculationType;
+
+    @Getter @Setter
+    @Column(allowsNull = "false")
+    private BudgetCalculationStatus status;
 
     @Override
     @PropertyLayout(hidden = Where.EVERYWHERE)

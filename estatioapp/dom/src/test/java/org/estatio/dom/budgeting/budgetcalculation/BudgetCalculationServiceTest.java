@@ -43,12 +43,7 @@ public class BudgetCalculationServiceTest {
         KeyItem keyItem1;
         KeyItem keyItem2;
 
-        BudgetCalculationService service = new BudgetCalculationService(){
-            @Override
-            public void removeTemporaryCalculations(final Budget budget){
-
-            }
-        };
+        BudgetCalculationService service = new BudgetCalculationService();
 
         @Before
         public void setup() {
@@ -88,7 +83,7 @@ public class BudgetCalculationServiceTest {
             allocation.setPercentage(new BigDecimal("100.00"));
 
             // when
-            List<BudgetCalculationResult> results = service.calculate(budget);
+            List<BudgetCalculationResult> results = service.calculationResults(budget);
 
             // then
             assertThat(results).hasSize(2);
@@ -105,7 +100,7 @@ public class BudgetCalculationServiceTest {
             allocation.setPercentage(new BigDecimal("99.00"));
 
             // when
-            List<BudgetCalculationResult> results = service.calculate(budget);
+            List<BudgetCalculationResult> results = service.calculationResults(budget);
 
             // then
             assertThat(results).hasSize(2);
@@ -122,7 +117,7 @@ public class BudgetCalculationServiceTest {
             allocation.setPercentage(new BigDecimal("99.00"));
 
             // when
-            List<BudgetCalculationResult> results = service.calculate(budget);
+            List<BudgetCalculationResult> results = service.calculationResults(budget);
 
             // then
             assertThat(results).hasSize(2);
@@ -139,7 +134,7 @@ public class BudgetCalculationServiceTest {
             allocation.setPercentage(BigDecimal.ZERO);
 
             // when
-            List<BudgetCalculationResult> results = service.calculate(budget);
+            List<BudgetCalculationResult> results = service.calculationResults(budget);
 
             // then
             assertThat(results).hasSize(2);
@@ -158,7 +153,7 @@ public class BudgetCalculationServiceTest {
             keyItem2.setValue(BigDecimal.ZERO);
 
             // when
-            List<BudgetCalculationResult> results = service.calculate(budget);
+            List<BudgetCalculationResult> results = service.calculationResults(budget);
 
             // then
             assertThat(results).hasSize(2);

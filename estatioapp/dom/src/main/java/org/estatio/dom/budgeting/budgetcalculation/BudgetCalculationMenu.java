@@ -30,7 +30,7 @@ public class BudgetCalculationMenu {
 
         for (Budget budget : budgetRepository.allBudgets()){
             if (budget.getInterval().contains(localDate)) {
-                budgetCalculationRepository.resetAndUpdateOrCreateBudgetCalculations(budget, budgetCalculationService.calculate(budget));
+                budget.calculate();
                 budgetAssignmentService.assignBudgetCalculations(budget);
             }
         }

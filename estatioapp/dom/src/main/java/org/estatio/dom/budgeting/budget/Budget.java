@@ -64,6 +64,7 @@ import org.estatio.dom.budgetassignment.ServiceChargeTermRepository;
 import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
 import org.estatio.dom.budgeting.api.BudgetItemCreator;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationRepository;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationService;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.dom.budgeting.budgetitem.BudgetItemRepository;
 import org.estatio.dom.budgeting.keytable.FoundationValueType;
@@ -303,6 +304,13 @@ public class Budget extends UdoDomainObject2<Budget>
         return total;
     }
 
+    @Action(semantics = SemanticsOf.IDEMPOTENT_ARE_YOU_SURE)
+    @ActionLayout()
+    public Budget calculate(){
+        budgetCalculationService.calculate(this);
+        return this;
+    }
+
     @Action(semantics = SemanticsOf.SAFE)
     public BudgetOverview budgetOverview() {
         return new BudgetOverview(this);
@@ -358,5 +366,8 @@ public class Budget extends UdoDomainObject2<Budget>
 
     @Inject
     private ServiceChargeTermRepository serviceChargeTermRepository;
+
+    @Inject
+    private BudgetCalculationService budgetCalculationService;
 
 }

@@ -19,7 +19,8 @@ import org.estatio.dom.budgeting.budget.BudgetRepository;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationRepository;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationService;
-import org.estatio.dom.budgeting.budgetcalculation.CalculationType;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationStatus;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationType;
 import org.estatio.dom.budgeting.keyitem.KeyItem;
 import org.estatio.dom.charge.Charge;
 import org.estatio.dom.charge.ChargeRepository;
@@ -70,10 +71,10 @@ public class BudgetCalculationRepositoryTest extends EstatioIntegrationTest {
             // given
             BudgetItemAllocation budgetItemAllocation = budgetItemAllocationRepository.allBudgetItemAllocations().get(0);
             KeyItem keyItem = budgetItemAllocation.getKeyTable().getItems().first();
-            BudgetCalculation newBudgetCalculation = budgetCalculationRepository.updateOrCreateBudgetCalculation(budgetItemAllocation, keyItem, BigDecimal.ZERO, BigDecimal.ZERO, CalculationType.BUDGETED);
+            BudgetCalculation newBudgetCalculation = budgetCalculationRepository.updateOrCreateTemporaryBudgetCalculation(budgetItemAllocation, keyItem, BigDecimal.ZERO, BigDecimal.ZERO, BudgetCalculationType.BUDGETED);
 
             // when
-            BudgetCalculation budgetCalculation = budgetCalculationRepository.findByBudgetItemAllocationAndKeyItemAndCalculationType(budgetItemAllocation, keyItem, CalculationType.BUDGETED);
+            BudgetCalculation budgetCalculation = budgetCalculationRepository.findByBudgetItemAllocationAndKeyItemAndStatusAndCalculationType(budgetItemAllocation, keyItem, BudgetCalculationStatus.TEMPORARY, BudgetCalculationType.BUDGETED);
 
             // then
             assertThat(budgetCalculation).isEqualTo(newBudgetCalculation);
@@ -89,7 +90,7 @@ public class BudgetCalculationRepositoryTest extends EstatioIntegrationTest {
             // given
             BudgetItemAllocation budgetItemAllocation = budgetItemAllocationRepository.allBudgetItemAllocations().get(0);
             KeyItem keyItem = budgetItemAllocation.getKeyTable().getItems().first();
-            BudgetCalculation newBudgetCalculation = budgetCalculationRepository.updateOrCreateBudgetCalculation(budgetItemAllocation, keyItem, BigDecimal.ZERO, BigDecimal.ZERO, CalculationType.BUDGETED);
+            BudgetCalculation newBudgetCalculation = budgetCalculationRepository.updateOrCreateTemporaryBudgetCalculation(budgetItemAllocation, keyItem, BigDecimal.ZERO, BigDecimal.ZERO, BudgetCalculationType.BUDGETED);
 
             // when
             List<BudgetCalculation> budgetCalculations = budgetCalculationRepository.findByBudgetItemAllocation(budgetItemAllocation);
@@ -112,7 +113,7 @@ public class BudgetCalculationRepositoryTest extends EstatioIntegrationTest {
             Budget budget = budgetRepository.findByPropertyAndStartDate(property, BudgetsForOxf.BUDGET_2015_START_DATE);
             Charge charge = chargeRepository.findByReference(ChargeRefData.GB_SERVICE_CHARGE);
             Charge chargeNotToBeFound = chargeRepository.findByReference(ChargeRefData.GB_SERVICE_CHARGE_ONBUDGET1);
-            budgetCalculationRepository.resetAndUpdateOrCreateBudgetCalculations(budget, budgetCalculationService.calculate(budget));
+            budget.calculate();
 
             // when
             List<BudgetCalculation> budgetCalculationsForCharge = budgetCalculationRepository.findByBudgetAndCharge(budget, charge);

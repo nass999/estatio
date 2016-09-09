@@ -16,7 +16,7 @@ import org.estatio.dom.budgeting.allocation.BudgetItemAllocationRepository;
 import org.estatio.dom.budgeting.budget.Budget;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationRepository;
-import org.estatio.dom.budgeting.budgetcalculation.CalculationType;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationType;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.dom.lease.OccupancyRepository;
 import org.estatio.dom.lease.Occupancy;
@@ -62,7 +62,7 @@ public class BudgetOverview  {
         for (BudgetItem budgetItem : budget.getItems()) {
             for (BudgetItemAllocation budgetItemAllocation : budgetItemAllocationRepository.findByBudgetItem(budgetItem)) {
 
-                for (BudgetCalculation calculation : budgetCalculationRepository.findByBudgetItemAllocationAndCalculationType(budgetItemAllocation, CalculationType.BUDGETED)) {
+                for (BudgetCalculation calculation : budgetCalculationRepository.findByBudgetItemAllocationAndCalculationType(budgetItemAllocation, BudgetCalculationType.BUDGETED)) {
 
                     List<Occupancy> occupancyList = occupancyRepository.occupanciesByUnitAndInterval(calculation.getKeyItem().getUnit(), budget.getInterval());
                     if (occupancyList.size() == 0) {
@@ -96,7 +96,7 @@ public class BudgetOverview  {
         for (BudgetItem budgetItem : budget.getItems()) {
             for (BudgetItemAllocation budgetItemAllocation : budgetItemAllocationRepository.findByBudgetItem(budgetItem)) {
 
-                for (BudgetCalculation calculation : budgetCalculationRepository.findByBudgetItemAllocationAndCalculationType(budgetItemAllocation, CalculationType.AUDITED)) {
+                for (BudgetCalculation calculation : budgetCalculationRepository.findByBudgetItemAllocationAndCalculationType(budgetItemAllocation, BudgetCalculationType.AUDITED)) {
 
                     List<Occupancy> occupancyList = occupancyRepository.occupanciesByUnitAndInterval(calculation.getKeyItem().getUnit(), budget.getInterval());
                     if (occupancyList.size() == 0) {

@@ -21,25 +21,36 @@ import org.estatio.dom.budgeting.keyitem.KeyItem;
 @DomainService(nature = NatureOfService.DOMAIN)
 public class BudgetCalculationService {
 
-    public List<BudgetCalculationResult> calculate(final Budget budget) {
+    public List<BudgetCalculation> calculate(final Budget budget) {
 
         removeTemporaryCalculations(budget);
 
-        List<BudgetCalculationResult> result = new ArrayList<>();
+        List<BudgetCalculation> budgetCalculations = new ArrayList<>();
+        for (BudgetCalculationResult result : calculationResults(budget)){
+            budgetCalculations.add(
+                    budgetCalculationRepository.updateOrCreateTemporaryBudgetCalculation(
+                    result.getBudgetItemAllocation(),
+                    result.getKeyItem(),
+                    result.getValue(),
+                    result.getSourceValue(),
+                    result.getCalculationType())
+            );
+        }
+        return budgetCalculations;
+    }
+
+    List<BudgetCalculationResult> calculationResults(final Budget budget){
+        List<BudgetCalculationResult> budgetCalculationResults = new ArrayList<>();
         for (BudgetItem budgetItem : budget.getItems()) {
 
-            result.addAll(calculate(budgetItem));
+            budgetCalculationResults.addAll(calculate(budgetItem));
 
         }
-
-        return result;
+        return budgetCalculationResults;
     }
 
     public void removeTemporaryCalculations(final Budget budget) {
-        List<BudgetCalculation> calcsToBeRemoved = new ArrayList<>();
-        calcsToBeRemoved.addAll(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.BUDGETED_TEMP));
-        calcsToBeRemoved.addAll(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.AUDITED_TEMP));
-        for (BudgetCalculation calc : calcsToBeRemoved){
+        for (BudgetCalculation calc : budgetCalculationRepository.findByBudgetAndStatus(budget, BudgetCalculationStatus.TEMPORARY)){
             calc.remove();
         }
     }
@@ -61,17 +72,17 @@ public class BudgetCalculationService {
         List<BudgetCalculationResult> results = new ArrayList<>();
 
         BigDecimal budgetedTotal = percentageOf(itemAllocation.getBudgetItem().getBudgetedValue(), itemAllocation.getPercentage());
-        results.addAll(calculateForTotalAndType(itemAllocation, budgetedTotal, CalculationType.BUDGETED_TEMP));
+        results.addAll(calculateForTotalAndType(itemAllocation, budgetedTotal, BudgetCalculationType.BUDGETED));
 
         if (itemAllocation.getBudgetItem().getAuditedValue() != null){
             BigDecimal auditedTotal = percentageOf(itemAllocation.getBudgetItem().getAuditedValue(), itemAllocation.getPercentage());
-            results.addAll(calculateForTotalAndType(itemAllocation,auditedTotal,CalculationType.AUDITED_TEMP));
+            results.addAll(calculateForTotalAndType(itemAllocation,auditedTotal, BudgetCalculationType.AUDITED));
         }
 
         return results;
     }
 
-    private List<BudgetCalculationResult> calculateForTotalAndType(final BudgetItemAllocation itemAllocation, final BigDecimal total, final CalculationType calculationType) {
+    private List<BudgetCalculationResult> calculateForTotalAndType(final BudgetItemAllocation itemAllocation, final BigDecimal total, final BudgetCalculationType calculationType) {
 
         List<Distributable> results = new ArrayList<>();
 

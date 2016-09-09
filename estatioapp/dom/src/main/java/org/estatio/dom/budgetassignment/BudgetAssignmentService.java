@@ -11,7 +11,7 @@ import org.apache.isis.applib.annotation.NatureOfService;
 import org.estatio.dom.budgeting.budget.Budget;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationRepository;
-import org.estatio.dom.budgeting.budgetcalculation.CalculationType;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationStatus;
 import org.estatio.dom.charge.Charge;
 import org.estatio.dom.lease.Occupancy;
 import org.estatio.dom.lease.OccupancyRepository;
@@ -20,7 +20,7 @@ import org.estatio.dom.lease.OccupancyRepository;
 public class BudgetAssignmentService {
 
 
-    public List<BudgetCalculationLink> assignBudgetCalculations(final Budget budget) throws Exception {
+    public List<BudgetCalculationLink> assignBudgetCalculations(final Budget budget) {
 
         removeCurrentlyAssignedCalculations(budget);
 
@@ -39,19 +39,8 @@ public class BudgetAssignmentService {
 
                     ServiceChargeTerm serviceChargeTerm = serviceChargeTermRepository.findOrCreateServiceChargeTerm(occupancy, invoiceCharge, budget.getBudgetYear());
                     for (BudgetCalculation budgetCalculation : budgetCalculationsForOccupancy){
-                        switch (budgetCalculation.getCalculationType()) {
-                            case BUDGETED_TEMP:
-                                budgetCalculation.setCalculationType(CalculationType.BUDGETED);
-                                break;
-
-                            case AUDITED_TEMP:
-                                budgetCalculation.setCalculationType(CalculationType.AUDITED);
-                                break;
-
-                            default:
-                                throw new Exception();
-                        }
                         budgetCalculationLinkRepository.findOrCreateBudgetCalculationLink(budgetCalculation, serviceChargeTerm);
+                        budgetCalculation.setStatus(BudgetCalculationStatus.ASSIGNED);
                     }
                     serviceChargeTerm.calculate();
 
@@ -66,15 +55,12 @@ public class BudgetAssignmentService {
     }
 
     private void removeCurrentlyAssignedCalculations(final Budget budget) {
-        List<BudgetCalculation> calculationsToBeRemoved = new ArrayList<>();
-        calculationsToBeRemoved.addAll(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.BUDGETED));
-        calculationsToBeRemoved.addAll(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.AUDITED));
-        for (BudgetCalculation calculation : calculationsToBeRemoved){
-            if (budgetCalculationLinkRepository.findByBudgetCalculation(calculation).size()>0){
-                for (BudgetCalculationLink link : budgetCalculationLinkRepository.findByBudgetCalculation(calculation)){
-                    link.remove();
-                }
+        for (BudgetCalculation calculation : budgetCalculationRepository.findByBudgetAndStatus(budget, BudgetCalculationStatus.ASSIGNED)){
+
+            for (BudgetCalculationLink link : budgetCalculationLinkRepository.findByBudgetCalculation(calculation)){
+                link.remove();
             }
+
             calculation.remove();
         }
     }

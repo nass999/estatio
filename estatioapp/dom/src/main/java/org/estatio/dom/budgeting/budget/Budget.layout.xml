@@ -17,7 +17,7 @@
                 <ns2:property id="endDate">
                     <ns2:action id="changeDates" position="BELOW"/>
                     <ns2:action id="calculate" position="BELOW"/>
-                    <ns2:action id="assignCalculationsToLeases" position="BELOW"/>
+                    <ns2:action id="assignCalculations" position="BELOW"/>
                     <ns2:action id="budgetOverview" position="BELOW"/>
                 </ns2:property>
                 <ns2:property id="applicationTenancy"/>

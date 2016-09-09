@@ -34,7 +34,7 @@ import org.estatio.dom.AbstractBeanPropertiesTest;
 import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
 import org.estatio.dom.budgeting.budget.Budget;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculation;
-import org.estatio.dom.budgeting.budgetcalculation.CalculationType;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationType;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.dom.charge.Charge;
 import org.estatio.dom.lease.Occupancy;
@@ -94,12 +94,12 @@ public class ServiceChargeTermTest {
             budgetCalculation1 = new BudgetCalculation();
             budgetCalculation1.setBudgetItemAllocation(budgetItemAllocation1);
             budgetCalculation1.setValue(new BigDecimal("99.99"));
-            budgetCalculation1.setCalculationType(CalculationType.BUDGETED);
+            budgetCalculation1.setCalculationType(BudgetCalculationType.BUDGETED);
 
             budgetCalculation2 = new BudgetCalculation();
             budgetCalculation2.setBudgetItemAllocation(budgetItemAllocation2);
             budgetCalculation2.setValue(new BigDecimal("101.01"));
-            budgetCalculation2.setCalculationType(CalculationType.BUDGETED);
+            budgetCalculation2.setCalculationType(BudgetCalculationType.BUDGETED);
 
             budgetCalculationLink1 = new BudgetCalculationLink();
             budgetCalculationLink1.setBudgetCalculation(budgetCalculation1);
@@ -144,7 +144,7 @@ public class ServiceChargeTermTest {
             assertThat(serviceChargeTerm.getCalculatedBudgetedValue()).isEqualTo(new BigDecimal("0.55"));
 
             // and when
-            budgetCalculation2.setCalculationType(CalculationType.AUDITED);
+            budgetCalculation2.setCalculationType(BudgetCalculationType.AUDITED);
             serviceChargeTerm.calculate();
 
             // then

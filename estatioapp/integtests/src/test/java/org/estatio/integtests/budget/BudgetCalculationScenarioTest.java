@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import javax.inject.Inject;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,14 +12,15 @@ import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.estatio.dom.asset.Property;
 import org.estatio.dom.asset.PropertyRepository;
 import org.estatio.dom.budgetassignment.BudgetAssignmentService;
+import org.estatio.dom.budgetassignment.BudgetCalculationLinkRepository;
 import org.estatio.dom.budgetassignment.ServiceChargeTerm;
 import org.estatio.dom.budgetassignment.ServiceChargeTermRepository;
 import org.estatio.dom.budgeting.budget.Budget;
 import org.estatio.dom.budgeting.budget.BudgetRepository;
-import org.estatio.dom.budgetassignment.BudgetCalculationLinkRepository;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationRepository;
 import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationService;
-import org.estatio.dom.budgeting.budgetcalculation.CalculationType;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationStatus;
+import org.estatio.dom.budgeting.budgetcalculation.BudgetCalculationType;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.fixture.EstatioBaseLineFixture;
 import org.estatio.fixture.asset.PropertyForOxfGb;
@@ -28,6 +28,8 @@ import org.estatio.fixture.budget.BudgetItemAllocationsForOxf;
 import org.estatio.fixture.budget.BudgetsForOxf;
 import org.estatio.fixture.lease.LeaseItemForServiceChargeBudgetedForOxfTopModel001Gb;
 import org.estatio.integtests.EstatioIntegrationTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
 
@@ -92,15 +94,12 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
 
 
             // when
-            budgetCalculationRepository
-                    .resetAndUpdateOrCreateBudgetCalculations(
-                            budget,
-                            budgetCalculationService.calculate(budget));
+            budget.calculate();
 
             // then
-            Assertions.assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
-            Assertions.assertThat(budgetCalculationRepository.findByBudgetItemAndCalculationType(budget.getItems().first(), CalculationType.BUDGETED_TEMP).size()).isEqualTo(25);
-            Assertions.assertThat(serviceChargeTermRepository.allServiceChargeTerms().size()).isEqualTo(0);
+            assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
+            assertThat(budgetCalculationRepository.findByBudgetItemAndStatusAndCalculationType(budget.getItems().first(), BudgetCalculationStatus.TEMPORARY, BudgetCalculationType.BUDGETED).size()).isEqualTo(25);
+            assertThat(serviceChargeTermRepository.allServiceChargeTerms().size()).isEqualTo(0);
 
         }
 
@@ -111,19 +110,19 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
             budgetAssignmentService.assignBudgetCalculations(budget);
 
             // then
-            Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
+            assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
 
-            Assertions.assertThat(budgetCalculationLinkRepository
+            assertThat(budgetCalculationLinkRepository
                     .allBudgetCalculationLinks().get(0)
                     .getBudgetCalculation()
                     .getValue())
                     .isEqualTo(new BigDecimal("92.31"));
-            Assertions.assertThat(budgetCalculationLinkRepository
+            assertThat(budgetCalculationLinkRepository
                     .allBudgetCalculationLinks().get(1)
                     .getBudgetCalculation()
                     .getValue())
                     .isEqualTo(new BigDecimal("98.46"));
-            Assertions.assertThat(budgetCalculationLinkRepository
+            assertThat(budgetCalculationLinkRepository
                     .allBudgetCalculationLinks().get(2)
                     .getBudgetCalculation()
                     .getValue())
@@ -133,17 +132,19 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
                     .allBudgetCalculationLinks().get(0)
                     .getServiceChargeTerm();
 
-            Assertions.assertThat(
+            assertThat(
                     createdTerm.getCalculatedBudgetedValue())
                     .isEqualTo(new BigDecimal("510.77"));
 
-            Assertions.assertThat(
+            assertThat(
                     createdTerm.getCalculatedAuditedValue())
                     .isEqualTo(new BigDecimal("0.00"));
 
-            Assertions.assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
-            Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
-            Assertions.assertThat(serviceChargeTermRepository.allServiceChargeTerms().size()).isEqualTo(1);
+            assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.ASSIGNED, BudgetCalculationType.BUDGETED).size()).isEqualTo(3);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.TEMPORARY, BudgetCalculationType.BUDGETED).size()).isEqualTo(72);
+            assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
+            assertThat(serviceChargeTermRepository.allServiceChargeTerms().size()).isEqualTo(1);
 
         }
 
@@ -157,17 +158,16 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
                     .getServiceChargeTerm();
 
             // when
-            budgetCalculationRepository
-                    .resetAndUpdateOrCreateBudgetCalculations(
-                            budget,
-                            budgetCalculationService.calculate(budget));
+            budget.calculate();
             budgetAssignmentService.assignBudgetCalculations(budget);
 
             // then
-            Assertions.assertThat(existingTerm.getCalculatedBudgetedValue())
+            assertThat(existingTerm.getCalculatedBudgetedValue())
                     .isEqualTo(new BigDecimal("556.93"));
-            Assertions.assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
-            Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
+            assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.ASSIGNED, BudgetCalculationType.BUDGETED).size()).isEqualTo(3);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.TEMPORARY, BudgetCalculationType.BUDGETED).size()).isEqualTo(72);
+            assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
         }
 
         public void assignBudgetWhenAudited() throws Exception {
@@ -178,28 +178,27 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
             ServiceChargeTerm existingTerm = budgetCalculationLinkRepository
                     .allBudgetCalculationLinks().get(0)
                     .getServiceChargeTerm();
-            Assertions.assertThat(existingTerm.getCalculatedBudgetedValue())
+            assertThat(existingTerm.getCalculatedBudgetedValue())
                     .isEqualTo(new BigDecimal("556.93"));
-            Assertions.assertThat(existingTerm.getCalculatedAuditedValue()).isEqualTo(new BigDecimal("0.00"));
-            Assertions.assertThat(existingTerm.getBudgetYear())
+            assertThat(existingTerm.getCalculatedAuditedValue()).isEqualTo(new BigDecimal("0.00"));
+            assertThat(existingTerm.getBudgetYear())
                     .isEqualTo(budget.getBudgetYear().startDate().getYear());
 
             // when
-            budgetCalculationRepository
-                    .resetAndUpdateOrCreateBudgetCalculations(
-                            budget,
-                            budgetCalculationService.calculate(budget));
+            budget.calculate();
             budgetAssignmentService.assignBudgetCalculations(budget);
 
             // then
-            Assertions.assertThat(existingTerm.getCalculatedAuditedValue())
+            assertThat(existingTerm.getCalculatedAuditedValue())
                     .isEqualTo(new BigDecimal("470.77"));
-            Assertions.assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(125);
-            Assertions.assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.AUDITED).size()).isEqualTo(2);
-            Assertions.assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.AUDITED_TEMP).size()).isEqualTo(48);
-            Assertions.assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.BUDGETED).size()).isEqualTo(3);
-            Assertions.assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.BUDGETED_TEMP).size()).isEqualTo(72);
-            Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(5);
+            assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(125);
+            assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, BudgetCalculationType.AUDITED).size()).isEqualTo(50);
+            assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, BudgetCalculationType.BUDGETED).size()).isEqualTo(75);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.ASSIGNED, BudgetCalculationType.BUDGETED).size()).isEqualTo(3);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.TEMPORARY, BudgetCalculationType.BUDGETED).size()).isEqualTo(72);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.ASSIGNED, BudgetCalculationType.AUDITED).size()).isEqualTo(2);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.TEMPORARY, BudgetCalculationType.AUDITED).size()).isEqualTo(48);
+            assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(5);
         }
 
         public void assignbudgetWhenAuditedAndUpdated() throws Exception {
@@ -210,23 +209,20 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
             ServiceChargeTerm existingTerm = budgetCalculationLinkRepository
                     .allBudgetCalculationLinks().get(0)
                     .getServiceChargeTerm();
-            Assertions.assertThat(existingTerm.getCalculatedBudgetedValue())
+            assertThat(existingTerm.getCalculatedBudgetedValue())
                     .isEqualTo(new BigDecimal("556.93"));
-            Assertions.assertThat(existingTerm.getCalculatedAuditedValue()).isEqualTo(new BigDecimal("470.77"));
+            assertThat(existingTerm.getCalculatedAuditedValue()).isEqualTo(new BigDecimal("470.77"));
 
             // when
-            budgetCalculationRepository
-                    .resetAndUpdateOrCreateBudgetCalculations(
-                            budget,
-                            budgetCalculationService.calculate(budget));
+            budget.calculate();
             budgetAssignmentService.assignBudgetCalculations(budget);
 
             // then
-            Assertions.assertThat(existingTerm.getCalculatedAuditedValue())
+            assertThat(existingTerm.getCalculatedAuditedValue())
                     .isEqualTo(new BigDecimal("481.23"));
 
-            Assertions.assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(125);
-            Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(5);
+            assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(125);
+            assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(5);
         }
 
         public void assignBudgetWhenAuditedAndUpdatedWithEmptyAuditedValueOnBudgetItem() throws Exception {
@@ -237,24 +233,24 @@ public class BudgetCalculationScenarioTest extends EstatioIntegrationTest {
             ServiceChargeTerm existingTerm = budgetCalculationLinkRepository
                     .allBudgetCalculationLinks().get(0)
                     .getServiceChargeTerm();
-            Assertions.assertThat(existingTerm.getCalculatedBudgetedValue())
+            assertThat(existingTerm.getCalculatedBudgetedValue())
                     .isEqualTo(new BigDecimal("556.93"));
-            Assertions.assertThat(existingTerm.getCalculatedAuditedValue()).isEqualTo(new BigDecimal("481.23"));
+            assertThat(existingTerm.getCalculatedAuditedValue()).isEqualTo(new BigDecimal("481.23"));
 
             // when
-            budgetCalculationRepository
-                    .resetAndUpdateOrCreateBudgetCalculations(
-                            budget,
-                            budgetCalculationService.calculate(budget));
+            budget.calculate();
             budgetAssignmentService.assignBudgetCalculations(budget);
 
             // then
-            Assertions.assertThat(existingTerm.getCalculatedAuditedValue())
+            assertThat(existingTerm.getCalculatedAuditedValue())
                     .isEqualTo(new BigDecimal("0.00"));
 
-            Assertions.assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
-            Assertions.assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.AUDITED).size()).isEqualTo(0);
-            Assertions.assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
+            assertThat(budgetCalculationRepository.findByBudget(budget).size()).isEqualTo(75);
+            assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, BudgetCalculationType.AUDITED).size()).isEqualTo(0);
+            assertThat(budgetCalculationRepository.findByBudgetAndCalculationType(budget, BudgetCalculationType.BUDGETED).size()).isEqualTo(75);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.ASSIGNED, BudgetCalculationType.BUDGETED).size()).isEqualTo(3);
+            assertThat(budgetCalculationRepository.findByBudgetAndStatusAndCalculationType(budget, BudgetCalculationStatus.TEMPORARY, BudgetCalculationType.BUDGETED).size()).isEqualTo(72);
+            assertThat(budgetCalculationLinkRepository.allBudgetCalculationLinks().size()).isEqualTo(3);
         }
 
     }
