@@ -89,14 +89,14 @@ public class BudgetIntegrationTest extends EstatioIntegrationTest {
         public ExpectedException expectedException = ExpectedException.none();
 
         @Before
-        public void setUp() {
+        public void setUp() throws Exception {
             propertyOxf = propertyRepository.findPropertyByReference(PropertyForOxfGb.REF);
             budgetsForOxf = budgetRepository.findByProperty(propertyOxf);
             budget2015 = budgetRepository.findByPropertyAndStartDate(propertyOxf, BudgetsForOxf.BUDGET_2015_START_DATE);
 
             // calculate and assign budget2015
             budgetCalculationContributions.calculate(budget2015);
-            budgetCalculationContributions.assignCalculationsToLeases(budget2015);
+            budgetCalculationContributions.assignCalculations(budget2015);
 
             topmodelBudgetServiceChargeItem = leaseRepository.findLeaseByReference(LeaseForOxfTopModel001Gb.REF).findFirstItemOfType(LeaseItemType.SERVICE_CHARGE_BUDGETED);
             topmodelOccupancy = occupancyRepository.findByLease(topmodelBudgetServiceChargeItem.getLease()).get(0);

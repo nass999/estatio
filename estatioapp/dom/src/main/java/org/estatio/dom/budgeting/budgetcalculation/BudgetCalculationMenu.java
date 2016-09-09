@@ -26,7 +26,7 @@ public class BudgetCalculationMenu {
     }
 
     @Action(restrictTo = RestrictTo.PROTOTYPING)
-    public void calculateAndAssignAllBudgetsActiveOnDate(final LocalDate localDate) {
+    public void calculateAndAssignAllBudgetsActiveOnDate(final LocalDate localDate) throws Exception {
 
         for (Budget budget : budgetRepository.allBudgets()){
             if (budget.getInterval().contains(localDate)) {

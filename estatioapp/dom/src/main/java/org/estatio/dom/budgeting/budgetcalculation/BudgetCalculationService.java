@@ -23,6 +23,8 @@ public class BudgetCalculationService {
 
     public List<BudgetCalculationResult> calculate(final Budget budget) {
 
+        removeTemporaryCalculations(budget);
+
         List<BudgetCalculationResult> result = new ArrayList<>();
         for (BudgetItem budgetItem : budget.getItems()) {
 
@@ -31,6 +33,15 @@ public class BudgetCalculationService {
         }
 
         return result;
+    }
+
+    public void removeTemporaryCalculations(final Budget budget) {
+        List<BudgetCalculation> calcsToBeRemoved = new ArrayList<>();
+        calcsToBeRemoved.addAll(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.BUDGETED_TEMP));
+        calcsToBeRemoved.addAll(budgetCalculationRepository.findByBudgetAndCalculationType(budget, CalculationType.AUDITED_TEMP));
+        for (BudgetCalculation calc : calcsToBeRemoved){
+            calc.remove();
+        }
     }
 
     private List<BudgetCalculationResult> calculate(final BudgetItem budgetItem) {
@@ -50,11 +61,11 @@ public class BudgetCalculationService {
         List<BudgetCalculationResult> results = new ArrayList<>();
 
         BigDecimal budgetedTotal = percentageOf(itemAllocation.getBudgetItem().getBudgetedValue(), itemAllocation.getPercentage());
-        results.addAll(calculateForTotalAndType(itemAllocation, budgetedTotal, CalculationType.BUDGETED));
+        results.addAll(calculateForTotalAndType(itemAllocation, budgetedTotal, CalculationType.BUDGETED_TEMP));
 
         if (itemAllocation.getBudgetItem().getAuditedValue() != null){
             BigDecimal auditedTotal = percentageOf(itemAllocation.getBudgetItem().getAuditedValue(), itemAllocation.getPercentage());
-            results.addAll(calculateForTotalAndType(itemAllocation,auditedTotal,CalculationType.AUDITED));
+            results.addAll(calculateForTotalAndType(itemAllocation,auditedTotal,CalculationType.AUDITED_TEMP));
         }
 
         return results;

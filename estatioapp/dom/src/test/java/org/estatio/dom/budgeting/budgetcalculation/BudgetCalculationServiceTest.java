@@ -43,7 +43,12 @@ public class BudgetCalculationServiceTest {
         KeyItem keyItem1;
         KeyItem keyItem2;
 
-        BudgetCalculationService service = new BudgetCalculationService();
+        BudgetCalculationService service = new BudgetCalculationService(){
+            @Override
+            public void removeTemporaryCalculations(final Budget budget){
+
+            }
+        };
 
         @Before
         public void setup() {

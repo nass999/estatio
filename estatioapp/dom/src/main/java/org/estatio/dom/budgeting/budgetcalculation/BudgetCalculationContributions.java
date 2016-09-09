@@ -27,7 +27,7 @@ public class BudgetCalculationContributions {
 
     @Action(semantics = SemanticsOf.IDEMPOTENT_ARE_YOU_SURE)
     @ActionLayout(contributed = Contributed.AS_ACTION)
-    public Budget assignCalculationsToLeases(final Budget budget){
+    public Budget assignCalculations(final Budget budget) throws Exception {
         budgetAssignmentService.assignBudgetCalculations(budget);
         return budget;
     }

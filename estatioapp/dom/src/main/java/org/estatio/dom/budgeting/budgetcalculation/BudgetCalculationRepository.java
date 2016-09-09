@@ -1,18 +1,19 @@
 package org.estatio.dom.budgeting.budgetcalculation;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
+
 import org.estatio.dom.UdoDomainRepositoryAndFactory;
 import org.estatio.dom.budgeting.allocation.BudgetItemAllocation;
 import org.estatio.dom.budgeting.budget.Budget;
 import org.estatio.dom.budgeting.budgetitem.BudgetItem;
 import org.estatio.dom.budgeting.keyitem.KeyItem;
 import org.estatio.dom.charge.Charge;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @DomainService(repositoryFor = BudgetCalculation.class, nature = NatureOfService.DOMAIN)
 public class BudgetCalculationRepository extends UdoDomainRepositoryAndFactory<BudgetCalculation> {
@@ -130,7 +131,9 @@ public class BudgetCalculationRepository extends UdoDomainRepositoryAndFactory<B
         for (BudgetItem item : budget.getItems()){
 
             result.addAll(findByBudgetItemAndCalculationType(item, CalculationType.AUDITED));
+            result.addAll(findByBudgetItemAndCalculationType(item, CalculationType.AUDITED_TEMP));
             result.addAll(findByBudgetItemAndCalculationType(item, CalculationType.BUDGETED));
+            result.addAll(findByBudgetItemAndCalculationType(item, CalculationType.BUDGETED_TEMP));
 
         }
         return result;
